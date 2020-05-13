@@ -1,0 +1,56 @@
+SELECT * FROM My_Schema.Tables;
+SELECT Student_ID FROM STUDENT;
+SELECT * FROM STUDENT;
+SELECT EMP_ID, NAME FROM EMPLOYEE_TBL WHERE EMP_ID = '0000';
+SELECT EMP_ID, LAST_NAME FROM EMPLOYEE WHERE CITY = 'Seattle' ORDER BY EMP_ID;
+SELECT EMP_ID, LAST_NAME FROM EMPLOYEE_TBL WHERE CITY = 'INDIANAPOLIS' ORDER BY EMP_ID ASC;
+SELECT Name, Age FROM Patients WHERE Age > 40 GROUP BY Name, Age ORDER BY Name;
+SELECT COUNT(price), price FROM orders WHERE price < 70 GROUP BY price ORDER BY price
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country;
+SELECT SUM(Salary) FROM Employee WHERE Emp_Age < 30;
+SELECT AVG(Price) FROM Products;
+SELECT * FROM My_Schema.views;
+CREATE VIEW Failing_Students AS SELECT S_NAME, Student_ID FROM STUDENT WHERE GPA > 40;
+DROP VIEW V1;
+UPDATE Customers SET Zip=Phone, Phone=Zip;
+SELECT DISTINCT ID FROM Customers;
+SELECT TOP 25 FROM Customers WHERE Customer_ID<>NULL;
+SELECT * From Customers WHERE Name LIKE 'Herb%'
+SELECT ID FROM Orders WHERE Date BETWEEN ‘01/12/2018’ AND ‘01/13/2018’
+SELECT ID FROM Customers INNER JOIN Orders ON Customers.ID = Orders.ID
+SELECT phone FROM Customers UNION SELECT item FROM Orders
+SELECT Item AS item_description FROM Orders
+CREATE DATABASE AllSales
+ALTER TABLE Customers ADD Birthday varchar(80)
+DROP TABLE table_name
+SELECT Name, Birthday, Phone, Address, Zip FROM Customers
+SELECT Name FROM Customers WHERE EXISTS  (SELECT Item FROM Orders WHERE Customers.ID = Orders.ID AND Price < 50)
+INSERT INTO Yearly_Orders SELECT * FROM Orders WHERE Date<=1/1/2018
+SELECT COUNT(ID), Region FROM Customers GROUP BY Region HAVING COUNT(ID) > 0;
+SELECT TOP 25 FROM Customers WHERE Customer_ID<>NULL;
+SELECT * From Customers WHERE Name LIKE 'Herb%'
+SELECT ID FROM Customers INNER JOIN Orders ON Customers.ID = Orders.ID
+SELECT phone FROM Customers UNION SELECT item FROM Orders
+DROP DATABASE Employee;
+CREATE TABLE Employee_Info ( EmployeeID int, EmployeeName varchar(255), Emergency ContactName varchar(255), PhoneNumber int, Address varchar(255), City varchar(255), Country varchar(255) );
+TRUNCATE Table Employee_Info;
+ALTER TABLE Employee_Info ADD BloodGroup varchar(255);
+ALTER COLUMN ColumnName Datatype;
+BACKUP DATABASE DatabaseName TO DISK = 'filepath';
+ALTER TABLE Employee_Info MODIFY PhoneNumber int NOT NULL;
+DROP CONSTRAINT UC_Employee_Info;
+CREATE INDEX idex_EmployeeName ON Persons (EmployeeName);
+DROP INDEX Employee_Info.idex_EmployeeName;
+USE Employee;
+INSERT INTO Employee_Info(EmployeeID, EmployeeName, Emergency ContactName, PhoneNumber, Address, City, Country) VALUES ('06', 'Sanjana','Jagannath', '9921321141', 'Camel Street House No 12', 'Chennai', 'India');
+UPDATE Employee_Info SET EmployeeName = 'Aahana', City= 'Ahmedabad' WHERE EmployeeID = 1;
+DELETE FROM Employee_Info WHERE EmployeeName='Preeti';
+SELECT EmployeeName, PhoneNumber INTO EmployeeContactDetails FROM Employee;
+SELECT * FROM Employee_Info WHERE City='Mumbai' AND City='Hyderabad';
+SELECT * FROM Employee_Info WHERE NOT City='Mumbai';
+SELECT * FROM Employee_Salary WHERE Salary BETWEEN 40000 AND 50000;
+SELECT EmergencyContactName FROM Employee_Info WHERE EXISTS (SELECT EmergencyContactName FROM Employee_Info WHERE EmployeeId = 05 AND City = 'Kolkata');
+SELECT EmployeeName, City FROM Employee_Info ORDER BY (CASE WHEN City IS NULL THEN 'Country is India by default' ELSE City END);
+SELECT Employee_Info.EmployeeName, Technologies.TechID FROM Employee_Info LEFT JOIN Technologies ON Employee_Info.EmployeeID = Technologies.EmpIDID ORDER BY Employee_Info.EmployeeName;
+SELECT Technologies.TechID FROM Technologies RIGHT JOIN Employee_Info ON Technologies.EmpID = Employee_Info.EmployeeID ORDER BY Technologies.TechID;
+GRANT SELECT ON Employee_Info TO user1;
