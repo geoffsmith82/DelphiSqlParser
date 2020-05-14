@@ -156,6 +156,11 @@ begin
     Result := 64
   else if info.Token = 'DATABASE' then
     Result := 65
+  // Result := 66 database name
+  // Result := 67 view name
+  // Result := 68 some db object - table, view, etc
+  // Result := 69 some db operation INSERT, DELETE, UPDATE, SELECT
+  // Result := 70 user
   else
     Result := -199; // unknown token
 end;

@@ -22,7 +22,6 @@ SELECT phone FROM Customers UNION SELECT item FROM Orders
 SELECT Item AS item_description FROM Orders
 CREATE DATABASE AllSales
 ALTER TABLE Customers ADD Birthday varchar(80)
-DROP TABLE table_name
 SELECT Name, Birthday, Phone, Address, Zip FROM Customers
 SELECT Name FROM Customers WHERE EXISTS  (SELECT Item FROM Orders WHERE Customers.ID = Orders.ID AND Price < 50)
 INSERT INTO Yearly_Orders SELECT * FROM Orders WHERE Date<=1/1/2018
@@ -31,9 +30,10 @@ SELECT TOP 25 FROM Customers WHERE Customer_ID<>NULL;
 SELECT * From Customers WHERE Name LIKE 'Herb%'
 SELECT ID FROM Customers INNER JOIN Orders ON Customers.ID = Orders.ID
 SELECT phone FROM Customers UNION SELECT item FROM Orders
+DROP TABLE table_name
 DROP DATABASE Employee;
 CREATE TABLE Employee_Info ( EmployeeID int, EmployeeName varchar(255), Emergency ContactName varchar(255), PhoneNumber int, Address varchar(255), City varchar(255), Country varchar(255) );
-TRUNCATE Table Employee_Info;
+TRUNCATE TABLE Employee_Info;
 ALTER TABLE Employee_Info ADD BloodGroup varchar(255);
 ALTER COLUMN ColumnName Datatype;
 BACKUP DATABASE DatabaseName TO DISK = 'filepath';

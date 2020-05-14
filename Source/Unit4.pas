@@ -14,6 +14,7 @@ uses
   , Vcl.Dialogs
   , Vcl.StdCtrls
   , Data.DB.Parser
+  , AnsiStrings
   ;
 
 type
@@ -208,11 +209,50 @@ begin
       end
     end;
 
-    if i - 1 >= 0 then  // =
+    if i - 1 >= 0 then  // parameter
     begin
       if (FTokens[i - 1].token = ':') then
       begin
         FTokens[i].TokenSQL := 26;
+      end
+    end;
+
+    if i - 5 >= 0 then  // GRANT5 operation4 ON3 object2 TO1 user0
+    begin
+      if (FTokens[i - 5].tokenSQL = 57) and
+         (FTokens[i - 3].tokenSQL = 21) and
+         (FTokens[i - 1].tokenSQL = 58) and
+         (MatchText(FTokens[i - 4].token, ['SELECT', 'INSERT', 'DELETE']) = TRUE)
+      then
+      begin
+        FTokens[i - 4].TokenSQL := 69;
+        FTokens[i - 2].TokenSQL := 68;
+        FTokens[i].TokenSQL := 70;
+      end
+    end;
+
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 34) and (FTokens[i - 1].tokenSQL = 65) then
+      begin
+        FTokens[i].TokenSQL := 66; // CREATE DATABASE
+      end
+      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 35) then
+      begin
+        FTokens[i].TokenSQL := 22; // DROP TABLE
+      end
+      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 65) then
+      begin
+        FTokens[i].TokenSQL := 66; // DROP DATABASE
+      end
+      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 60) then
+      begin
+        FTokens[i].TokenSQL := 67; // DROP VIEW
+      end
+      else if (FTokens[i - 2].tokenSQL = 46) and (FTokens[i - 1].tokenSQL = 35) then
+      begin
+        FTokens[i].TokenSQL := 66; // TRUNCATE TABLE
       end
     end;
   end;
