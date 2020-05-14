@@ -22,13 +22,16 @@ type
     Memo1: TMemo;
     Memo2: TMemo;
     Button1: TButton;
-    procedure FormCreate(Sender: TObject);
+    Button2: TButton;
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     FTokens: TTokenBucket;
   public
     { Public declarations }
+    procedure ProcessSQL(SQL: string);
   end;
 
 var
@@ -38,12 +41,56 @@ implementation
 
 {$R *.dfm}
 
+uses
+    System.IOUtils
+  ;
+
 procedure TForm4.FormCreate(Sender: TObject);
 begin
   FTokens := TTokenBucket.Create;
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
+begin
+  ProcessSQL(Memo1.Text);
+end;
+
+procedure TForm4.Button2Click(Sender: TObject);
+var
+  statements : TStringList;
+  filename : string;
+  I: Integer;
+  GoodCount : Integer;
+  j: Integer;
+  undecodedCount : Integer;
+begin
+  GoodCount := 0;
+  statements := TStringList.Create;
+  try
+    filename := ExtractFilePath(ParamStr(0));
+    filename := TPath.Combine(filename, '..\..\sql.txt');
+    statements.LoadFromFile(filename);
+    for I := 0 to statements.Count - 1 do
+    begin
+      undecodedCount := 0;
+      ProcessSQL(statements[i]);
+      for j := 0 to FTokens.Count - 1 do
+      begin
+        if FTokens[j].TokenSQL = -199 then
+          Inc(undecodedCount);
+      end;
+      Memo2.Lines.Add('Missed Decoding :' + undecodedCount.ToString);
+      if undecodedCount = 0 then
+        Inc(GoodCount);
+    end;
+    Memo2.Lines.Add('Total Good Statements :' + GoodCount.ToString);
+    Memo2.Lines.Add('Total Statements :' + statements.Count.ToString);
+  finally
+    FreeAndNil(statements);
+  end;
+end;
+
+procedure TForm4.ProcessSQL(SQL: string);
 var
   parser: TParser;
   strStrm: TStringStream;
@@ -53,7 +100,7 @@ var
 begin
   FTokens.Clear;
   strStrm := TStringStream.Create;
-  strStrm.WriteString(Memo1.Text);
+  strStrm.WriteString(SQL);
   strStrm.Position := 0;
   parser := TParser.Create(strStrm);
   repeat
@@ -313,7 +360,6 @@ begin
     Memo2.Lines.Add(FTokens[i].token + ' ' + FTokens[i].TokenSQL.ToString);
   end;
 end;
-
 
 end.
 

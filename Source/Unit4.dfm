@@ -1,7 +1,7 @@
 object Form4: TForm4
   Left = 0
   Top = 0
-  Caption = 'Form4'
+  Caption = 'Test SQL Parser'
   ClientHeight = 597
   ClientWidth = 660
   Color = clBtnFace
@@ -37,8 +37,17 @@ object Form4: TForm4
     Top = 536
     Width = 75
     Height = 25
-    Caption = 'Button1'
+    Caption = 'Decode SQL'
     TabOrder = 2
     OnClick = Button1Click
+  end
+  object Button2: TButton
+    Left = 376
+    Top = 536
+    Width = 131
+    Height = 25
+    Caption = 'Decode SQL From File'
+    TabOrder = 3
+    OnClick = Button2Click
   end
 end
