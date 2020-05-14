@@ -11,7 +11,6 @@ SELECT SUM(Salary) FROM Employee WHERE Emp_Age < 30;
 SELECT AVG(Price) FROM Products;
 SELECT * FROM My_Schema.views;
 CREATE VIEW Failing_Students AS SELECT S_NAME, Student_ID FROM STUDENT WHERE GPA > 40;
-DROP VIEW V1;
 UPDATE Customers SET Zip=Phone, Phone=Zip;
 SELECT DISTINCT ID FROM Customers;
 SELECT TOP 25 FROM Customers WHERE Customer_ID<>NULL;
@@ -32,15 +31,17 @@ SELECT ID FROM Customers INNER JOIN Orders ON Customers.ID = Orders.ID
 SELECT phone FROM Customers UNION SELECT item FROM Orders
 DROP TABLE table_name
 DROP DATABASE Employee;
+DROP INDEX Employee_Info.idex_EmployeeName;
+DROP CONSTRAINT UC_Employee_Info;
+DROP VIEW V1;
+DROP USER someuser;
 CREATE TABLE Employee_Info ( EmployeeID int, EmployeeName varchar(255), Emergency ContactName varchar(255), PhoneNumber int, Address varchar(255), City varchar(255), Country varchar(255) );
 TRUNCATE TABLE Employee_Info;
 ALTER TABLE Employee_Info ADD BloodGroup varchar(255);
 ALTER COLUMN ColumnName Datatype;
 BACKUP DATABASE DatabaseName TO DISK = 'filepath';
 ALTER TABLE Employee_Info MODIFY PhoneNumber int NOT NULL;
-DROP CONSTRAINT UC_Employee_Info;
 CREATE INDEX idex_EmployeeName ON Persons (EmployeeName);
-DROP INDEX Employee_Info.idex_EmployeeName;
 USE Employee;
 INSERT INTO Employee_Info(EmployeeID, EmployeeName, Emergency ContactName, PhoneNumber, Address, City, Country) VALUES ('06', 'Sanjana','Jagannath', '9921321141', 'Camel Street House No 12', 'Chennai', 'India');
 UPDATE Employee_Info SET EmployeeName = 'Aahana', City= 'Ahmedabad' WHERE EmployeeID = 1;

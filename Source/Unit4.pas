@@ -96,6 +96,11 @@ begin
     else if ((FTokens[i].TokenSQL = 5) and (FTokens[i + 1].TokenSQL = 8)) or ((FTokens[i].TokenSQL = 3) and (FTokens[i + 1].TokenSQL = 8)) or ((FTokens[i].TokenSQL = 4) and (FTokens[i + 1].TokenSQL = 8)) or ((FTokens[i].TokenSQL = 7) and (FTokens[i + 1].TokenSQL = 8)) then
     begin
       FTokens.Join(i);
+    end
+    else if ((FTokens[i].TokenSQL = 11) and (FTokens[i + 1].TokenSQL = 12)) or ((FTokens[i].TokenSQL = 3) and (FTokens[i + 1].TokenSQL = 8)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 76;  // GROUP BY
     end;
     Inc(i);
   end;
@@ -104,6 +109,13 @@ begin
   begin
     if FTokens[i - 1].TokenSQL = 1  {'FROM'} then
       FTokens[i].TokenSQL := 22;
+
+    if (i - 3 >= 0) and (FTokens[i - 3].TokenSQL = 1) and {'FROM3 schema2.1tablename0'}
+       (FTokens[i - 1].TokenSQL = 19) then
+    begin
+      FTokens[i - 2].TokenSQL := 77;
+      FTokens[i - 0].TokenSQL := 22;
+    end;
 
     if i - 2 >= 0 then
     begin
@@ -155,6 +167,29 @@ begin
       end
     end;
 
+    if i - 2 >= 0 then  // WHERE fieldname = ???
+    begin
+      if (FTokens[i - 1].token = 'WHERE') and
+        (FTokens[i + 1].token = '=')
+      then
+      begin
+        if FTokens[i].TokenType = toSymbol then
+          FTokens[i].TokenSQL := 24
+        else if FTokens[i].TokenType = toInteger then
+          FTokens[i].TokenSQL := 71;
+
+        if FTokens[i + 2].TokenType = toSymbol then
+          FTokens[i + 2].TokenSQL := 24
+        else if FTokens[i + 2].TokenType = toInteger then
+          FTokens[i + 2].TokenSQL := 71
+        else if FTokens[i + 2].TokenType = toFloat then
+          FTokens[i + 2].TokenSQL := 71
+        else if FTokens[i + 2].TokenType = System.Classes.toString then
+          FTokens[i + 2].TokenSQL := 72;
+
+      end
+    end;
+
     if i - 2 >= 0 then  // (
     begin
       if (FTokens[i - 1].token = '(') and (FTokens[i + 1].token = '.') and//          (FTokens[i + 2].Token = fieldname)
@@ -171,6 +206,14 @@ begin
       begin
         FTokens[i].TokenSQL := 22;
         FTokens[i + 2].TokenSQL := 24;
+      end
+    end;
+
+    if i - 1 >= 0 then  // USE dbname
+    begin
+      if (FTokens[i - 1].tokenSQL = 73) then
+      begin
+        FTokens[i].TokenSQL := 66;
       end
     end;
 
@@ -249,6 +292,14 @@ begin
       else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 60) then
       begin
         FTokens[i].TokenSQL := 67; // DROP VIEW
+      end
+      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 50) then
+      begin
+        FTokens[i].TokenSQL := 74; // DROP CONSTRAINT
+      end
+      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 75) then
+      begin
+        FTokens[i].TokenSQL := 70; // DROP USER
       end
       else if (FTokens[i - 2].tokenSQL = 46) and (FTokens[i - 1].tokenSQL = 35) then
       begin
