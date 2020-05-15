@@ -132,22 +132,89 @@ begin
   until (parser.NextToken = toEOF);
 
   i := 0;
-//   for i := 0 to FTokens.Count - 1 do
+  // Initial pass - join multi word commands together
   while i < FTokens.Count - 1 do
   begin
     if ((FTokens[i].TokenSQL = 4) and (FTokens[i + 1].TokenSQL = 7) and (FTokens[i + 2].TokenSQL = 8)) then
     begin
       FTokens.Join(i);
-      FTokens.Join(i);
+      FTokens.Join(i);  // RIGHT OUTER JOIN
+      FTokens[i].TokenSQL := 79;
     end
-    else if ((FTokens[i].TokenSQL = 5) and (FTokens[i + 1].TokenSQL = 8)) or ((FTokens[i].TokenSQL = 3) and (FTokens[i + 1].TokenSQL = 8)) or ((FTokens[i].TokenSQL = 4) and (FTokens[i + 1].TokenSQL = 8)) or ((FTokens[i].TokenSQL = 7) and (FTokens[i + 1].TokenSQL = 8)) then
+    else if ((FTokens[i].TokenSQL = 5) and (FTokens[i + 1].TokenSQL = 8)) then
     begin
-      FTokens.Join(i);
+      FTokens.Join(i);  // INNER JOIN
+      FTokens[i].TokenSQL := 80;
     end
-    else if ((FTokens[i].TokenSQL = 11) and (FTokens[i + 1].TokenSQL = 12)) or ((FTokens[i].TokenSQL = 3) and (FTokens[i + 1].TokenSQL = 8)) then
+    else if ((FTokens[i].TokenSQL = 3) and (FTokens[i + 1].TokenSQL = 8)) then
+    begin
+      FTokens.Join(i); // LEFT JOIN
+      FTokens[i].TokenSQL := 81;
+    end
+    else if ((FTokens[i].TokenSQL = 4) and (FTokens[i + 1].TokenSQL = 8)) then
+    begin
+      FTokens.Join(i); // RIGHT JOIN
+      FTokens[i].TokenSQL := 82;
+    end
+    else if ((FTokens[i].TokenSQL = 7) and (FTokens[i + 1].TokenSQL = 8)) then
+    begin
+      FTokens.Join(i); // OUTER JOIN
+      FTokens[i].TokenSQL := 83;
+    end
+    else if ((FTokens[i].TokenSQL = 11) and (FTokens[i + 1].TokenSQL = 12)) then
     begin
       FTokens.Join(i);
       FTokens[i].TokenSQL := 76;  // GROUP BY
+    end
+    else if ((FTokens[i].TokenSQL = 10) and (FTokens[i + 1].TokenSQL = 12)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 84;  // ORDER BY
+    end
+    else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 65)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 85;  // CREATE DATABASE
+    end
+    else if ((FTokens[i].TokenSQL = 45) and (FTokens[i + 1].TokenSQL = 65)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 112;  // DROP DATABASE
+    end
+    else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 60)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 109;  // CREATE VIEW
+    end
+    else if ((FTokens[i].TokenSQL = 45) and (FTokens[i + 1].TokenSQL = 60)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 113;  // DROP VIEW
+    end
+    else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 35)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 111;  // CREATE TABLE
+    end
+    else if ((FTokens[i].TokenSQL = 45) and (FTokens[i + 1].TokenSQL = 35)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 114;  // DROP TABLE
+    end
+    else if ((FTokens[i].TokenSQL = 46) and (FTokens[i + 1].TokenSQL = 35)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 116;  // TRUNCATE TABLE
+    end
+    else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 75)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 110;  // CREATE USER
+    end
+    else if ((FTokens[i].TokenSQL = 117) and (FTokens[i + 1].TokenSQL = 89)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 110;  // IF EXISTS
     end;
     Inc(i);
   end;
@@ -170,6 +237,31 @@ begin
         FTokens[i].TokenSQL := 23;
     end;
 
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 1].TokenSQL = 86) and (FTokens[i - 2].TokenSQL = 17) {'SUM('} then
+        FTokens[i].TokenSQL := 86;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 1].TokenSQL = 87) and (FTokens[i - 2].TokenSQL = 17) {'COUNT('} then
+        FTokens[i].TokenSQL := 87;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 1].TokenSQL = 88) and (FTokens[i - 2].TokenSQL = 17) {'AVG('} then
+        FTokens[i].TokenSQL := 88;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 1].TokenSQL = 89) and (FTokens[i - 2].TokenSQL = 17) {'EXISTS('} then
+        FTokens[i].TokenSQL := 89;
+    end;
+
+
     if (i - 2 >= 0) and (i < FTokens.Count - 2) then // SELECT
     begin
       if (FTokens[i - 1].token = 'SELECT') and
@@ -179,6 +271,13 @@ begin
         FTokens[i].TokenSQL := 22;
         FTokens[i + 2].TokenSQL := 24;
       end;
+    end;
+
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 31) and (FTokens[i].tokenSQL = 32) then   // UPDATE ??? SET
+        FTokens[i - 1].TokenSQL := 22;
     end;
 
 
@@ -321,42 +420,61 @@ begin
       end
     end;
 
-
-    if i - 2 >= 0 then
+    if i - 1 >= 0 then
     begin
-      if (FTokens[i - 2].tokenSQL = 34) and (FTokens[i - 1].tokenSQL = 65) then
+      if (FTokens[i - 1].tokenSQL = 85) then
       begin
         FTokens[i].TokenSQL := 66; // CREATE DATABASE
       end
-      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 35) then
-      begin
-        FTokens[i].TokenSQL := 22; // DROP TABLE
-      end
-      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 65) then
+      else if (FTokens[i - 1].tokenSQL = 112) then
       begin
         FTokens[i].TokenSQL := 66; // DROP DATABASE
       end
-      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 60) then
+      else if (FTokens[i - 1].tokenSQL = 109) then
+      begin
+        FTokens[i].TokenSQL := 67; // CREATE VIEW
+      end
+      else if (FTokens[i - 1].tokenSQL = 113) then
       begin
         FTokens[i].TokenSQL := 67; // DROP VIEW
       end
-      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 50) then
+      else if (FTokens[i - 1].tokenSQL = 110) then
+      begin
+        FTokens[i].TokenSQL := 70; // CREATE USER
+      end
+      else if (FTokens[i - 1].tokenSQL = 110) then
+      begin
+        FTokens[i].TokenSQL := 115; // DROP USER
+      end
+      else if (FTokens[i - 1].tokenSQL = 111) then
+      begin
+        FTokens[i].TokenSQL := 22; // CREATE TABLE
+      end
+      else if (FTokens[i - 1].tokenSQL = 114) then
+      begin
+        FTokens[i].TokenSQL := 22; // DROP TABLE
+      end
+      else if (FTokens[i - 1].tokenSQL = 116) then
+      begin
+        FTokens[i].TokenSQL := 22; // TRUNCATE TABLE
+      end
+    end;
+
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 50) then
       begin
         FTokens[i].TokenSQL := 74; // DROP CONSTRAINT
-      end
-      else if (FTokens[i - 2].tokenSQL = 45) and (FTokens[i - 1].tokenSQL = 75) then
-      begin
-        FTokens[i].TokenSQL := 70; // DROP USER
-      end
-      else if (FTokens[i - 2].tokenSQL = 46) and (FTokens[i - 1].tokenSQL = 35) then
-      begin
-        FTokens[i].TokenSQL := 66; // TRUNCATE TABLE
       end
     end;
   end;
 
   for i := 0 to FTokens.Count - 1 do
   begin
+    if FTokens[i].TokenSQL = -199 then
+      Memo2.Lines.Add('============= ' + FTokens[i].token + ' ' + FTokens[i].TokenSQL.ToString)
+    else
     Memo2.Lines.Add(FTokens[i].token + ' ' + FTokens[i].TokenSQL.ToString);
   end;
 end;

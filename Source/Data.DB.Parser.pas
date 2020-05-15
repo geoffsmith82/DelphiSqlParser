@@ -30,12 +30,15 @@ function TokenStringToTokenSQL(info: TTokenInfo): Integer;
 implementation
 
 uses
-    SysUtils
+    System.SysUtils
+  , System.Classes
+
   ;
 
 function TokenStringToTokenSQL(info: TTokenInfo): Integer;
 var
   token : string;
+  intValue : Int64;
 begin
   token := info.Token.ToUpper;
   if Token = 'SELECT' then
@@ -168,8 +171,10 @@ begin
   // Result := 68 some db object - table, view, etc
   // Result := 69 some db operation INSERT, DELETE, UPDATE, SELECT
   // Result := 70 user
-  // Result := 71 number value
-  // Result := 72 string value
+  else if (TryStrToInt64(token, intValue) = True) then
+    Result := 71 // number value
+  else if info.TokenType = System.Classes.toString then
+    Result := 72 // string value
   else if Token = 'USE' then
     Result := 73
   // Result := 74 constraint
@@ -177,6 +182,71 @@ begin
     Result := 75
   // Result := 76 GROUP BY
   // Result := 77 schema name
+  // Result := 78 DROP TABLE
+  // Result := 79 RIGHT OUTER JOIN
+  // Result := 80 INNER JOIN
+  // Result := 81 LEFT JOIN
+  // Result := 82 RIGHT JOIN
+  // Result := 83 OUTER JOIN
+  // Result := 84 ORDER BY
+  // Result := 85 CREATE DATABASE
+  else if Token = 'SUM' then
+    Result := 86 // SUM
+  else if Token = 'COUNT' then
+    Result := 87 // COUNT
+  else if Token = 'AVG' then
+    Result := 88 // AVG
+  else if Token = 'EXISTS' then
+    Result := 89 // EXISTS
+  else if Token = 'OR' then
+    Result := 90 // OR
+  else if Token = 'AND' then
+    Result := 91 // AND
+  else if Token = 'NOT' then
+    Result := 92 // OR
+  else if Token = ',' then
+    Result := 93 // ,
+  else if Token = '<' then
+    Result := 94 // <
+  else if Token = '>' then
+    Result := 95 // <
+  else if Token = '/' then
+    Result := 96 // /
+  else if Token = '*' then
+    Result := 97 // *
+  else if Token = 'UNION' then
+    Result := 98 // *
+  else if Token = 'NULL' then
+    Result := 99 // *
+  else if Token = 'WHEN' then
+    Result := 100 // *
+  else if Token = 'IS' then
+    Result := 101 // *
+  else if Token = 'ELSE' then
+    Result := 102 // *
+  else if Token = 'THEN' then
+    Result := 103 // *
+  else if Token = 'BACKUP' then
+    Result := 104 // *
+  else if Token = 'DISK' then
+    Result := 105 // *
+  else if Token = 'VARCHAR' then
+    Result := 106 // *
+  else if Token = 'INT' then
+    Result := 107 // *
+  else if Token = 'MODIFY' then
+    Result := 108 // *
+  // Result := 109 CREATE VIEW
+  // Result := 110 CREATE USER
+  // Result := 111 CREATE TABLE
+  // Result := 112 DROP DATABASE
+  // Result := 113 DROP VIEW
+  // Result := 114 DROP TABLE
+  // Result := 115 DROP USER
+  // Result := 116 TRUNCATE TABLE
+  else if Token = 'IF' then
+    Result := 117 // *
+  // Result := 118 IF EXISTS
   else
     Result := -199; // unknown token
 end;
