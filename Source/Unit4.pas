@@ -206,11 +206,27 @@ begin
       FTokens.Join(i);
       FTokens[i].TokenSQL := 116;  // TRUNCATE TABLE
     end
+    else if ((FTokens[i].TokenSQL = 33) and (FTokens[i + 1].TokenSQL = 35)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 119;  // ALTER TABLE
+    end
     else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 75)) then
     begin
       FTokens.Join(i);
       FTokens[i].TokenSQL := 110;  // CREATE USER
     end
+    else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 120)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 121;  // CREATE INDEX
+    end
+    else if ((FTokens[i].TokenSQL = 45) and (FTokens[i + 1].TokenSQL = 120)) then
+    begin
+      FTokens.Join(i);
+      FTokens[i].TokenSQL := 122;  // DROP INDEX
+    end
+
     else if ((FTokens[i].TokenSQL = 117) and (FTokens[i + 1].TokenSQL = 89)) then
     begin
       FTokens.Join(i);
@@ -381,6 +397,88 @@ begin
       end
     end;
 
+    if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = 19) then
+    begin  // SELECT ????.?????
+      FTokens[i].tokenSQL := 22;
+      FTokens[i + 2].tokenSQL := 24;
+    end
+    else if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = 93) then
+    begin // SELECT ???? ,
+      FTokens[i].tokenSQL := 24;
+    end
+    else if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = 1) then
+    begin // SELECT ???? FROM
+      FTokens[i].tokenSQL := 24;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 24 ) and (FTokens[i - 1].tokenSQL = 93) and (FTokens[i].tokenSQL = -199) then
+      begin // field2 ,1 ????0
+        FTokens[i].tokenSQL := 24;
+      end
+    end;
+
+    if i - 3 >= 0 then
+    begin
+      if (FTokens[i - 3].tokenSQL = 24 ) and (FTokens[i - 2].tokenSQL = 93) and (FTokens[i].tokenSQL = 1) then
+      begin // field3 ,2 ????1 FROM0
+        FTokens[i - 1].tokenSQL := 24;
+      end;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 2 ) and (FTokens[i].tokenSQL = 19) then
+      begin  // WHERE ????.?????
+        FTokens[i - 1 ].tokenSQL := 22;
+        FTokens[i + 1].tokenSQL := 24;
+      end
+      else if (FTokens[i - 2].tokenSQL = 2 ) then
+      begin // WHERE ????
+        FTokens[i - 1].tokenSQL := 24;
+      end;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 84 ) and (FTokens[i].tokenSQL = 19) then
+      begin  // ORDER BY ????.?????
+        FTokens[i - 1 ].tokenSQL := 22;
+        FTokens[i + 1].tokenSQL := 24;
+      end
+      else if (FTokens[i - 2].tokenSQL = 84 ) then
+      begin // ORDER BY ????
+        FTokens[i - 1].tokenSQL := 24;
+      end;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 76 ) and (FTokens[i].tokenSQL = 19) then
+      begin  // GROUP BY ????.?????
+        FTokens[i - 1 ].tokenSQL := 22;
+        FTokens[i + 1].tokenSQL := 24;
+      end
+      else if (FTokens[i - 2].tokenSQL = 76 ) then
+      begin // GROUP BY ????
+        FTokens[i - 1].tokenSQL := 24;
+      end;
+    end;
+
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].tokenSQL = 32 ) and (FTokens[i].tokenSQL = 19) then
+      begin  // SET ????.?????
+        FTokens[i - 1 ].tokenSQL := 22;
+        FTokens[i + 1].tokenSQL := 24;
+      end
+      else if (FTokens[i - 2].tokenSQL = 32 ) then
+      begin // SET ????
+        FTokens[i - 1].tokenSQL := 24;
+      end;
+    end;
+
     if i - 2 >= 0 then  // =
     begin
       if (FTokens[i - 1].token = ',') and (FTokens[i + 1].token = '.') then
@@ -457,6 +555,10 @@ begin
       else if (FTokens[i - 1].tokenSQL = 116) then
       begin
         FTokens[i].TokenSQL := 22; // TRUNCATE TABLE
+      end
+      else if (FTokens[i - 1].tokenSQL = 119) then
+      begin
+        FTokens[i].TokenSQL := 22; // ALTER TABLE
       end
     end;
 

@@ -245,8 +245,13 @@ begin
   // Result := 115 DROP USER
   // Result := 116 TRUNCATE TABLE
   else if Token = 'IF' then
-    Result := 117 // *
+    Result := 117 // IF
   // Result := 118 IF EXISTS
+  // Result := 119 ALTER TABLE
+  else if Token = 'INDEX' then
+    Result := 120 // INDEX
+  // Result := 121 CREATE INDEX
+  // Result := 122 DROP INDEX
   else
     Result := -199; // unknown token
 end;
