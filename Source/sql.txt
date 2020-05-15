@@ -15,7 +15,7 @@ UPDATE Customers SET Zip=Phone, Phone=Zip;
 SELECT DISTINCT ID FROM Customers;
 SELECT TOP 25 FROM Customers WHERE Customer_ID<>NULL;
 SELECT * From Customers WHERE Name LIKE 'Herb%'
-SELECT ID FROM Orders WHERE Date BETWEEN ‘01/12/2018’ AND ‘01/13/2018’
+SELECT ID FROM Orders WHERE Date BETWEEN '01/12/2018' AND '01/13/2018'
 SELECT ID FROM Customers INNER JOIN Orders ON Customers.ID = Orders.ID
 SELECT phone FROM Customers UNION SELECT item FROM Orders
 SELECT Item AS item_description FROM Orders
