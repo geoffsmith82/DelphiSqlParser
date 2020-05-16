@@ -27,9 +27,11 @@ SELECT Name FROM Customers WHERE EXISTS  (SELECT Item FROM Orders WHERE Customer
 INSERT INTO Yearly_Orders SELECT * FROM Orders WHERE Date<=1/1/2018
 SELECT COUNT(ID), Region FROM Customers GROUP BY Region HAVING COUNT(ID) > 0;
 SELECT TOP 25 FROM Customers WHERE Customer_ID<>NULL;
+SELECT LAT_N, CITY, TEMP_F FROM STATS, STATION WHERE MONTH = 7 AND STATS.ID = STATION.ID ORDER BY TEMP_F; 
 SELECT * From Customers WHERE Name LIKE 'Herb%'
 SELECT ID FROM Customers INNER JOIN Orders ON Customers.ID = Orders.ID
 SELECT phone FROM Customers UNION SELECT item FROM Orders
+SELECT MAX(TEMP_F), MIN(TEMP_F), AVG(RAIN_I), ID FROM STATS GROUP BY ID; 
 DROP TABLE table_name
 DROP DATABASE Employee;
 DROP INDEX Employee_Info.idex_EmployeeName;
@@ -39,7 +41,7 @@ DROP USER someuser;
 CREATE TABLE Employee_Info ( EmployeeID int, EmployeeName varchar(255), Emergency ContactName varchar(255), PhoneNumber int, Address varchar(255), City varchar(255), Country varchar(255) );
 TRUNCATE TABLE Employee_Info;
 ALTER TABLE Employee_Info ADD BloodGroup varchar(255);
-ALTER COLUMN ColumnName Datatype;
+ALTER COLUMN ColumnName varchar(255);
 BACKUP DATABASE DatabaseName TO DISK = 'filepath';
 ALTER TABLE Employee_Info MODIFY PhoneNumber int NOT NULL;
 CREATE INDEX idex_EmployeeName ON Persons (EmployeeName);
@@ -56,3 +58,13 @@ SELECT EmployeeName, City FROM Employee_Info ORDER BY (CASE WHEN City IS NULL TH
 SELECT Employee_Info.EmployeeName, Technologies.TechID FROM Employee_Info LEFT JOIN Technologies ON Employee_Info.EmployeeID = Technologies.EmpIDID ORDER BY Employee_Info.EmployeeName;
 SELECT Technologies.TechID FROM Technologies RIGHT JOIN Employee_Info ON Technologies.EmpID = Employee_Info.EmployeeID ORDER BY Technologies.TechID;
 GRANT SELECT ON Employee_Info TO user1;
+GRANT SELECT,INSERT,UPDATE,DELETE ON Employee_Info2 TO user2;
+INSERT INTO shop VALUES (1,'A',3.45),(1,'B',3.99),(2,'A',10.99),(3,'B',1.45),(3,'C',1.69), (3,'D',1.25),(4,'D',19.95);
+SELECT article, dealer, price FROM shop WHERE  price=(SELECT MAX(price) FROM shop)
+SELECT article, dealer, price FROM shop ORDER BY price DESC LIMIT 1
+CREATE TEMPORARY TABLE tmp ( article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL, price   DOUBLE(16,2) DEFAULT '0.00' NOT NULL);
+LOCK TABLES shop READ;
+UNLOCK TABLES;
+SELECT Customers.ID, Customers.Company FROM Customers WHERE NOT EXISTS (SELECT Orders.OrderID FROM Orders WHERE Orders.CustomerID = Customers.CustomerID  AND Orders.OrderDate > Date() - 90);
+
+SELECT Year([Orders].[OrderDate]) AS TheYear,  Month([Orders].[OrderDate]) AS TheMonth, Sum([Order Details].[Quantity]*[Order Details].[UnitPrice]) AS MonthAmount, (SELECT Sum(OD.Quantity * OD.UnitPrice) AS YTD FROM Orders AS A INNER JOIN [Order Details] AS OD ON A.OrderID = OD.OrderID WHERE A.OrderDate >= DateSerial(Year([Orders].[OrderDate]),1,1) AND A.OrderDate < DateSerial(Year([Orders].[OrderDate]),  Month([Orders].[OrderDate]) + 1, 1)) AS YTDAmount FROM Orders INNER JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID GROUP BY Year([Orders].[OrderDate]), Month([Orders].[OrderDate]);
