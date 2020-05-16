@@ -43,6 +43,10 @@ begin
   token := info.Token.ToUpper;
   if Token = 'SELECT' then
     Result := 0
+  else if (TryStrToInt64(token, intValue) = True) then
+    Result := 71 // number value
+  else if info.TokenType = System.Classes.toString then
+    Result := 72 // string value
   else if Token = 'FROM' then
     Result := 1
   else if Token = 'WHERE' then
@@ -94,8 +98,6 @@ begin
   // Result := 28 // String
   else if Token = 'INSERT' then
     Result := 29
-  else if Token = 'INTO' then
-    Result := 30
   else if Token = 'UPDATE' then
     Result := 31
   else if Token = 'SET' then
@@ -171,10 +173,6 @@ begin
   // Result := 68 some db object - table, view, etc
   // Result := 69 some db operation INSERT, DELETE, UPDATE, SELECT
   // Result := 70 user
-  else if (TryStrToInt64(token, intValue) = True) then
-    Result := 71 // number value
-  else if info.TokenType = System.Classes.toString then
-    Result := 72 // string value
   else if Token = 'USE' then
     Result := 73
   // Result := 74 constraint
@@ -252,6 +250,18 @@ begin
     Result := 120 // INDEX
   // Result := 121 CREATE INDEX
   // Result := 122 DROP INDEX
+  // Result := 123 DELETE FROM
+  // Result := 124 <>
+  // Result := 125 BACKUP DATABASE
+  // Result := 126 TO DISK
+  // Result := 127 INSERT INTO
+  // Result := 128 DROP USER
+  // Result := 129 DROP CONSTRAINT
+  // Result := 130 indexname
+  // Result := 131 constraintname
+
+
+
   else
     Result := -199; // unknown token
 end;

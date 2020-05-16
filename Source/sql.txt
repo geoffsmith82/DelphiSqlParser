@@ -10,6 +10,7 @@ SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country;
 SELECT SUM(Salary) FROM Employee WHERE Emp_Age < 30;
 SELECT AVG(Price) FROM Products;
 SELECT * FROM My_Schema.views;
+SELECT * INTO newtable FROM oldtable WHERE 1 = 0; 
 CREATE VIEW Failing_Students AS SELECT S_NAME, Student_ID FROM STUDENT WHERE GPA > 40;
 UPDATE Customers SET Zip=Phone, Phone=Zip;
 SELECT DISTINCT ID FROM Customers;

@@ -9,4 +9,4 @@
 ## Project Status
 
   Currently the project is in a very early stage although, it can decode fair number of the simple SQL commands although for anything complicated it probably cant yet handle.
-  The project can currently decode 33 out of the 57 test SQL statements.
+  The project can currently decode 40 out of the 58 test SQL statements.
