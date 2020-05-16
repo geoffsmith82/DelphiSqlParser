@@ -29,7 +29,7 @@ type
     FTokens: TTokenBucket;
     procedure ProcessSQL(SQL: string);
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
 
@@ -49,11 +49,14 @@ function TokenStringToTokenSQL(info: TTokenInfo): Integer;
 var
   token : string;
   intValue : Int64;
+  floatValue : double;
 begin
   token := info.Token.ToUpper;
   if Token = 'SELECT' then
     Result := 0
   else if (TryStrToInt64(token, intValue) = True) then
+    Result := 71 // number value
+  else if (TryStrToFloat(token, floatValue) = True) then
     Result := 71 // number value
   else if info.TokenType = System.Classes.toString then
     Result := 72 // string value
@@ -269,9 +272,27 @@ begin
   // Result := 129 DROP CONSTRAINT
   // Result := 130 indexname
   // Result := 131 constraintname
-
-
-
+  // Result := 132 LOCK TABLES
+  // Result := 133 UNLOCK TABLES
+  else if Token = 'LOCK' then
+    Result := 134 // LOCK
+  else if Token = 'UNLOCK' then
+    Result := 135 // UNLOCK
+  else if Token = 'TABLES' then
+    Result := 136 // TABLES
+  else if Token = 'DOUBLE' then
+    Result := 137 // DOUBLE
+  else if Token = 'DEFAULT' then
+    Result := 138 // DEFAULT
+  else if Token = 'TEMPORARY' then
+    Result := 139 // TEMPORARY
+  else if Token = 'MAX' then
+    Result := 140 // MAX
+  // Result := 141 NOT NULL
+  else if Token = 'ZEROFILL' then
+    Result := 142 // MAX
+  else if Token = 'UNSIGNED' then
+    Result := 143 // MAX
   else
     Result := -199; // unknown token
 end;
@@ -398,6 +419,16 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 84;  // ORDER BY
       end
+      else if ((FTokens[i].TokenSQL = 134) and (FTokens[i + 1].TokenSQL = 136)) then
+      begin
+        FTokens.Join(i);
+        FTokens[i].TokenSQL := 132;  // LOCK TABLES
+      end
+      else if ((FTokens[i].TokenSQL = 135) and (FTokens[i + 1].TokenSQL = 136)) then
+      begin
+        FTokens.Join(i);
+        FTokens[i].TokenSQL := 133;  // UNLOCK TABLES
+      end
       else if ((FTokens[i].TokenSQL = 34) and (FTokens[i + 1].TokenSQL = 65)) then
       begin
         FTokens.Join(i);
@@ -493,6 +524,11 @@ begin
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 126;  // TO DISK
+      end
+      else if ((FTokens[i].TokenSQL = 92) and (FTokens[i + 1].TokenSQL = 99)) then
+      begin
+        FTokens.Join(i);
+        FTokens[i].TokenSQL := 141;  // NOT NULL
       end
       else if ((FTokens[i].TokenSQL = 117) and (FTokens[i + 1].TokenSQL = 89)) then
       begin
