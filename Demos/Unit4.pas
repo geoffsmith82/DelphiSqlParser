@@ -67,7 +67,7 @@ begin
   statements := TStringList.Create;
   try
     filename := ExtractFilePath(ParamStr(0));
-    filename := TPath.Combine(filename, '..\..\sql.txt');
+    filename := TPath.Combine(filename, '..\..\..\Source\sql.txt');
     statements.LoadFromFile(filename);
     for I := 0 to statements.Count - 1 do
     begin

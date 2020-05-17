@@ -3,7 +3,7 @@ program TestSQLParser;
 uses
   Vcl.Forms,
   Unit4 in 'Unit4.pas' {Form4},
-  Data.DB.Parser in 'Data.DB.Parser.pas';
+  Data.DB.Parser in '..\Source\Data.DB.Parser.pas';
 
 {$R *.res}
 
