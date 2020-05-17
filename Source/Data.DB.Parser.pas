@@ -54,9 +54,9 @@ begin
   token := info.Token.ToUpper;
   if Token = 'SELECT' then
     Result := 0
-  else if (TryStrToInt64(token, intValue) = True) then
+  else if (TryStrToInt64(token, intValue) = True) and not (Token = '.') then
     Result := 71 // number value
-  else if (TryStrToFloat(token, floatValue) = True) then
+  else if (TryStrToFloat(token, floatValue) = True) and not (Token = '.') then
     Result := 71 // number value
   else if info.TokenType = System.Classes.toString then
     Result := 72 // string value
@@ -295,6 +295,7 @@ begin
     Result := 143 // UNSIGNED
   else if Token = 'MIN' then
     Result := 144 // MIN
+  // Result := 145 indexname
   else
     Result := -199; // unknown token
 end;
@@ -555,6 +556,14 @@ begin
         FTokens[i - 2].TokenSQL := 77;
         FTokens[i - 0].TokenSQL := 22;
       end;
+
+      if (i - 3 >= 0) and (FTokens[i - 3].TokenSQL = 122) and {'DROP INDEX3 table2.1indexname0'}
+         (FTokens[i - 1].TokenSQL = 19) then
+      begin
+        FTokens[i - 2].TokenSQL := 22;
+        FTokens[i - 0].TokenSQL := 145;
+      end;
+
 
       if (i - 2 >= 0) and (FTokens[i - 2].TokenSQL = 9) and {'INTO2 ????1 FROM0'}
          (FTokens[i].TokenSQL = 1) then
