@@ -42,7 +42,7 @@ implementation
 uses
     System.SysUtils
   , System.Classes
-  , System.AnsiStrings
+  , System.StrUtils
   ;
 
 function TokenStringToTokenSQL(info: TTokenInfo): Integer;
@@ -292,7 +292,9 @@ begin
   else if Token = 'ZEROFILL' then
     Result := 142 // MAX
   else if Token = 'UNSIGNED' then
-    Result := 143 // MAX
+    Result := 143 // UNSIGNED
+  else if Token = 'MIN' then
+    Result := 144 // MIN
   else
     Result := -199; // unknown token
 end;
@@ -883,7 +885,7 @@ begin
         if (FTokens[i - 5].tokenSQL = 57) and
            (FTokens[i - 3].tokenSQL = 21) and
            (FTokens[i - 1].tokenSQL = 58) and
-           (MatchText(FTokens[i - 4].token, ['SELECT', 'INSERT', 'DELETE']) = TRUE)
+           (MatchStr(FTokens[i - 4].token, ['SELECT', 'INSERT', 'DELETE']) = TRUE)
         then
         begin
           FTokens[i - 4].TokenSQL := 69;
