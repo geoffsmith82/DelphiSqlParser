@@ -804,12 +804,12 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 84 ) and (FTokens[i].tokenSQL = 19) then
+        if ( (FTokens[i - 2].tokenSQL = 42 ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = 84 ) ) and (FTokens[i].tokenSQL = 19) then
         begin  // ORDER BY ????.?????
           FTokens[i - 1 ].tokenSQL := 22;
           FTokens[i + 1].tokenSQL := 24;
         end
-        else if (FTokens[i - 2].tokenSQL = 84 ) then
+        else if ( (FTokens[i - 2].tokenSQL = 42 ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = 84 ) ) then
         begin // ORDER BY ????
           FTokens[i - 1].tokenSQL := 24;
         end;
@@ -825,6 +825,22 @@ begin
         else if (FTokens[i - 2].tokenSQL = 76 ) then
         begin // GROUP BY ????
           FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 3 >= 0 then
+      begin
+        if (FTokens[i - 3].tokenSQL = 84 ) and (FTokens[i - 1].tokenSQL = 19) then
+        begin  // ORDER BY3 ????2.1?????0
+          FTokens[i - 2 ].tokenSQL := 22;
+          FTokens[i].tokenSQL := 24;
+        end
+      end;
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 1].tokenSQL = 84 ) then
+        begin // ORDER BY ????
+          FTokens[i].tokenSQL := 24;
         end;
       end;
 
@@ -917,6 +933,17 @@ begin
         then
         begin
           FTokens[i - 4].TokenSQL := 69;
+          FTokens[i - 2].TokenSQL := 68;
+          FTokens[i].TokenSQL := 70;
+        end
+      end;
+
+     if i - 3 >= 0 then  // ON3 object2 TO1 user0
+      begin
+        if (FTokens[i - 3].tokenSQL = 21) and
+           (FTokens[i - 1].tokenSQL = 58)
+        then
+        begin
           FTokens[i - 2].TokenSQL := 68;
           FTokens[i].TokenSQL := 70;
         end
