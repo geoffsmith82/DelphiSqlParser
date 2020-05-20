@@ -296,6 +296,8 @@ begin
   else if Token = 'MIN' then
     Result := 144 // MIN
   // Result := 145 indexname
+  else if Token = 'READ' then
+    Result := 146 // MIN
   else
     Result := -199; // unknown token
 end;
@@ -661,9 +663,18 @@ begin
         end
       end;
 
+      if i - 2 >= 0 then // LOCK TABLES2 ????1 READ0
+      begin
+        if (FTokens[i - 2].TokenSQL = 132) and (FTokens[i].TokenSQL = 146) then
+        begin
+          FTokens[i-1].TokenSQL := 24;
+        end;
+      end;
+
+
       if i - 2 >= 0 then  // WHERE fieldname = ???
       begin
-        if (FTokens[i - 1].token = 'WHERE') and
+        if ((FTokens[i - 1].token = 'SET') or (FTokens[i - 1].token = 'WHERE')) and
           (FTokens[i + 1].token = '=')
         then
         begin
@@ -691,6 +702,14 @@ begin
         begin
           FTokens[i].TokenSQL := 22;
           FTokens[i + 2].TokenSQL := 24;
+        end
+      end;
+
+      if i - 2 >= 0 then  // tablename MODIFY ?????
+      begin
+        if (FTokens[i - 2].tokenSQL = 22) and (FTokens[i - 1].tokenSQL = 108) then
+        begin
+          FTokens[i].TokenSQL := 24;
         end
       end;
 
