@@ -298,6 +298,15 @@ begin
   // Result := 145 indexname
   else if Token = 'READ' then
     Result := 146 // MIN
+  //  Result := 147 // functionname
+  else if Token = '-' then
+    Result := 148 // MIN
+  else if Token = '+' then
+    Result := 149 // MIN
+  else if Token = '[' then
+    Result := 150 // [
+  else if Token = ']' then
+    Result := 151 // ]
   else
     Result := -199; // unknown token
 end;
@@ -635,6 +644,8 @@ begin
       begin
         if (FTokens[i - 1].token = 'JOIN') or (FTokens[i - 1].token = 'INNER JOIN') or (FTokens[i - 1].token = 'LEFT JOIN') or (FTokens[i - 1].token = 'RIGHT JOIN') or (FTokens[i - 1].token = 'OUTER JOIN') or (FTokens[i - 1].token = 'FULL OUTER JOIN') then
           FTokens[i].TokenSQL := 22;
+        if FTokens[i].Token = '[' then
+          FTokens[i].TokenSQL := 150;
       end;
 
       if i - 2 >= 0 then  // ON
@@ -788,6 +799,9 @@ begin
           FTokens[i - 1].tokenSQL := 24;
         end;
       end;
+
+
+
 
       if i - 2 >= 0 then
       begin
@@ -996,6 +1010,191 @@ begin
           FTokens[i].TokenSQL := 22; // ALTER TABLE
         end
       end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 1) then
+        begin //  ,2 ????1 FROM0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 15 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 16) then
+        begin //  ,2 ????1 FROM0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 0 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 20) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 20 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 1) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 48 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 106) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 2) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 17 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 107) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 106) then
+        begin //  , 2 ????1 VARCHAR0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 107) then
+        begin //  , 2 ????1 VARCHAR0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 47 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 106) then
+        begin //  COLUMN 2 ????1 VARCHAR0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 137) then
+        begin //  COLUMN 2 ????1 VARCHAR0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 24 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 15) then
+        begin //  NOT 2 ????1 =0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 17 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 93) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 15) then
+        begin //  SELECT 2 ????1 AS0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 35 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 17) then
+        begin //  TABLE 2 ????1 (0
+          FTokens[i - 1].tokenSQL := 22;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 100 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 101) then
+        begin //  TABLE 2 ????1 (0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = -199 ) and (FTokens[i - 1].tokenSQL = 17) and (FTokens[i-0].tokenSQL = 18) then
+        begin //  TABLE 2 ????1 (0
+          FTokens[i - 2].tokenSQL := 147;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 55 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 56) then
+        begin //  TABLE 2 ????1 (0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 20 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 21) then
+        begin //  AS 2 ????1 ON0
+          FTokens[i - 1].tokenSQL := 23;
+        end;
+      end;
+
+      if i - 3 >= 0 then
+      begin
+        if (FTokens[i - 3].tokenSQL = 17 ) and (FTokens[i - 2].tokenSQL = -199) and (FTokens[i-1].tokenSQL = 19) and (FTokens[i].tokenSQL = -199) then
+        begin //  AS 2 ????1 ON0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 3 >= 0 then
+      begin
+        if (FTokens[i - 3].tokenSQL = 18 ) and (FTokens[i - 2].tokenSQL = 20) and (FTokens[i-1].tokenSQL = -199) and (FTokens[i].tokenSQL = 17) then
+        begin //  AS 2 ????1 ON0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 3 >= 0 then
+      begin
+        if (FTokens[i - 3].tokenSQL = 18 ) and (FTokens[i - 2].tokenSQL = 20) and (FTokens[i-1].tokenSQL = -199) and (FTokens[i].tokenSQL = 17) then
+        begin //  AS 2 ????1 ON0
+          FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+
+//      if i - 3 >= 0 then
+//      begin
+//        if (FTokens[i - 3].tokenSQL <> 19 ) and (FTokens[i - 2].Token = '[') and (FTokens[i-1].tokenSQL = -199) and (FTokens[i].tokenSQL = 17) then
+//        begin //  AS 2 ????1 ON0
+//          FTokens[i - 1].tokenSQL := 24;
+//        end;
+//      end;
 
 
       if i - 2 >= 0 then
