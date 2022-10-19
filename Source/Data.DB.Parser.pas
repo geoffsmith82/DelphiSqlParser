@@ -220,7 +220,7 @@ begin
   else if Token = '<' then
     Result := 94 // <
   else if Token = '>' then
-    Result := 95 // <
+    Result := 95 // >
   else if Token = '/' then
     Result := 96 // /
   else if Token = '*' then
@@ -307,6 +307,11 @@ begin
     Result := 150 // [
   else if Token = ']' then
     Result := 151 // ]
+  // Result := 152 // <=
+  // Result := 153 // >=
+ // else if Token = 'ALTER COLUMN' then
+ //   Result := 154 // ]
+
   else
     Result := -199; // unknown token
 end;
@@ -528,6 +533,21 @@ begin
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 124;  // <>
+      end
+      else if ((FTokens[i].TokenSQL = 94) and (FTokens[i + 1].TokenSQL = 15)) then
+      begin
+        FTokens.Join(i);
+        FTokens[i].TokenSQL := 152;  // <=
+      end
+      else if ((FTokens[i].TokenSQL = 95) and (FTokens[i + 1].TokenSQL = 15)) then
+      begin
+        FTokens.Join(i);
+        FTokens[i].TokenSQL := 153;  // >=
+      end
+      else if ((FTokens[i].TokenSQL = 33) and (FTokens[i + 1].TokenSQL = 47)) then
+      begin
+        FTokens.Join(i);
+        FTokens[i].TokenSQL := 154;  // ALTER COLUMN
       end
       else if ((FTokens[i].TokenSQL = 104) and (FTokens[i + 1].TokenSQL = 65)) then
       begin
@@ -1085,7 +1105,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 47 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 106) then
+        if (FTokens[i - 2].tokenSQL = 154 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 106) then
         begin //  COLUMN 2 ????1 VARCHAR0
           FTokens[i - 1].tokenSQL := 24;
         end;
