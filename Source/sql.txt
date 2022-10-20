@@ -65,5 +65,6 @@ SELECT article, dealer, price FROM shop ORDER BY price DESC LIMIT 1
 CREATE TEMPORARY TABLE tmp ( article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL, price   DOUBLE(16,2) DEFAULT '0.00' NOT NULL);
 LOCK TABLES shop READ;
 UNLOCK TABLES;
+SELECT Year(t1.date), * FROM t1 AS table1 INNER JOIN table2 ON table1.f1 = table2.f2 WHERE (table1.id = 12);
 SELECT Customers.ID, Customers.Company FROM Customers WHERE NOT EXISTS (SELECT Orders.OrderID FROM Orders WHERE (Orders.CustomerID = Customers.CustomerID)  AND (Orders.OrderDate > Date() - 90));
 SELECT Year([Orders].[OrderDate]) AS TheYear,  Month([Orders].[OrderDate]) AS TheMonth, Sum([Order Details].[Quantity]*[Order Details].[UnitPrice]) AS MonthAmount, (SELECT Sum(OD.Quantity * OD.UnitPrice) AS YTD FROM Orders AS A INNER JOIN [Order Details] AS OD ON A.OrderID = OD.OrderID WHERE A.OrderDate >= DateSerial(Year([Orders].[OrderDate]),1,1) AND A.OrderDate < DateSerial(Year([Orders].[OrderDate]),  Month([Orders].[OrderDate]) + 1, 1)) AS YTDAmount FROM Orders INNER JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID GROUP BY Year([Orders].[OrderDate]), Month([Orders].[OrderDate]);
