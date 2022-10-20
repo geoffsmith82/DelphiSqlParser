@@ -13,6 +13,27 @@ uses
   , Vcl.Forms
   , Vcl.Dialogs
   , Vcl.StdCtrls
+  , Vcl.Grids
+  , Vcl.DBGrids
+  , Data.DB
+  , FireDAC.Stan.Intf
+  , FireDAC.Stan.Option
+  , FireDAC.Stan.Error
+  , FireDAC.UI.Intf
+  , FireDAC.Phys.Intf
+  , FireDAC.Stan.Def
+  , FireDAC.Stan.Pool
+  , FireDAC.Stan.Async
+  , FireDAC.Phys
+  , FireDAC.Phys.MSAcc
+  , FireDAC.Phys.MSAccDef
+  , FireDAC.VCLUI.Wait
+  , FireDAC.Comp.Client
+  , FireDAC.Stan.Param
+  , FireDAC.DatS
+  , FireDAC.DApt.Intf
+  , FireDAC.DApt
+  , FireDAC.Comp.DataSet
   , Data.DB.Parser
   ;
 
@@ -22,9 +43,14 @@ type
     Memo2: TMemo;
     Button1: TButton;
     Button2: TButton;
+    FDConnection1: TFDConnection;
+    tblTestSQLStatements: TFDTable;
+    dsTestSQLStatements: TDataSource;
+    DBGrid1: TDBGrid;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
   private
     { Private declarations }
     value : TSQLParser;
@@ -45,8 +71,15 @@ uses
   ;
 
 procedure TForm4.FormCreate(Sender: TObject);
+var
+  filename : string;
 begin
   value := TSQLParser.Create;
+  filename := ExtractFilePath(ParamStr(0));
+  filename := TPath.Combine(filename, '..\..\..\Source\SQLParserDB.mdb');
+  FDConnection1.Params.Database := filename;
+  FDConnection1.Connected := True;
+  tblTestSQLStatements.Active := True;
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
@@ -102,6 +135,25 @@ begin
     else
     Memo2.Lines.Add(value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString);
   end;
+end;
+
+procedure TForm4.tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
+var
+  undecodedCount : Integer;
+  j : Integer;
+begin
+  if not Assigned(value) then
+      value := TSQLParser.Create;
+  Memo1.Clear;
+  Memo1.Lines.Text := DataSet.FieldByName('Statements').AsString;
+  undecodedCount := 0;
+  ProcessSQL(Memo1.Lines.Text);
+  for j := 0 to value.FTokens.Count - 1 do
+  begin
+    if value.FTokens[j].TokenSQL = -199 then
+      Inc(undecodedCount);
+  end;
+  Memo2.Lines.Add('Missed Decoding :' + undecodedCount.ToString);
 end;
 
 end.
