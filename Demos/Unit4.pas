@@ -214,6 +214,11 @@ begin
   begin
     Memo2.Lines.Add('Double Constant Expression EXISTS!!!!!!!!!!!!!!');
   end;
+  if value.StatementCount > 1 then
+  begin
+    Memo2.Lines.Add('MULTIPLE STATEMENTS EXISTS!!!!!!!!!!!!!!');
+  end;
+
   if value.IsDDL then
   begin
     Memo2.Lines.Add('Statement is DDL');

@@ -18,3 +18,5 @@ I have listed some goals of this project below.
   - The project can currently decode 69 out of the 70 test SQL statements.
   - The project can compare what the expected AST is to what the decoded AST is to ensure the parser is working properly
   - At the moment no attempt to limit SQL dialect type has been implemented.
+  - Initial testing of 1 = 1 like conditions for detecting SQL Injection attacks
+  - Add check for multiple statements in SQL text

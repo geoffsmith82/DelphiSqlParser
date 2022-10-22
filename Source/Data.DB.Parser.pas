@@ -31,6 +31,7 @@ type
     function DoesStatementModifyDB: Boolean;
     function IsDDL: Boolean;
     function DoesDoubleConstantExpressionExist: Boolean;
+    function StatementCount: Integer;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -472,6 +473,21 @@ begin
   FreeAndNil(FTokens);
 end;
 
+function TSQLParser.StatementCount: Integer;
+var
+ count : Integer;
+ i : Integer;
+begin
+  Result := 0;
+  count := 0;
+  for I := 0 to FTokens.Count - 1 do
+  begin
+    if FTokens[i].TokenSQL = 16 then
+      Inc(count);
+  end;
+  Result := count;
+end;
+
 function TSQLParser.DoesDoubleConstantExpressionExist: Boolean;
 var
   i : Integer;
@@ -479,13 +495,13 @@ begin
   Result := False;
   for i := 0 to FTokens.Count - 1 do
   begin
-      if i - 2 >= 0 then
+    if i - 2 >= 0 then
+    begin
+      if (FTokens[i - 2].TokenSQL in [71,72]) and (FTokens[i - 1].TokenSQL in [15, 94, 95, 124, 152, 153]) and (FTokens[i].TokenSQL in [71,72]) then
       begin
-        if (FTokens[i - 2].TokenSQL in [71,72]) and (FTokens[i - 1].TokenSQL in [15, 94, 95, 124, 152, 153]) and (FTokens[i].TokenSQL in [71,72]) then
-        begin
-          Result := True;
-        end;
+        Result := True;
       end;
+    end;
   end;
 end;
 
@@ -909,12 +925,12 @@ begin
         end
       end;
 
-      if i - 2 >= 0 then  // =
+      if i - 4 >= 0 then  // =
       begin
-        if (FTokens[i - 1].token = '=') and (FTokens[i + 1].token = '.') then
+        if (FTokens[i - 3].token = '=') and (FTokens[i - 1].token = '.') then
         begin
-          FTokens[i].TokenSQL := 22;
-          FTokens[i + 2].TokenSQL := 24;
+          FTokens[i -2 ].TokenSQL := 22;
+          FTokens[i + 0].TokenSQL := 24;
         end
       end;
 
@@ -926,12 +942,12 @@ begin
         end
       end;
 
-      if i - 2 >= 0 then  // =
+      if i - 5 >= 0 then  // =
       begin
-        if ((FTokens[i - 1].token = '<') or (FTokens[i - 1].token = '=') or (FTokens[i - 1].token = '>')) and (FTokens[i + 1].token = '.') then
+        if ((FTokens[i - 3].token = '<') or (FTokens[i - 3].token = '=') or (FTokens[i - 3].token = '>')) and (FTokens[i - 1].token = '.') then
         begin
-          FTokens[i].TokenSQL := 22;
-          FTokens[i + 2].TokenSQL := 24;
+          FTokens[i-2].TokenSQL := 22;
+          FTokens[i + 0].TokenSQL := 24;
         end
       end;
 
