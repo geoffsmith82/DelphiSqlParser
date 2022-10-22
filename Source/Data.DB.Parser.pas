@@ -30,6 +30,7 @@ type
     procedure ProcessSQL(SQL: string);
     function DoesStatementModifyDB: Boolean;
     function IsDDL: Boolean;
+    function DoesDoubleConstantExpressionExist: Boolean;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -142,6 +143,8 @@ begin
    153: Result := 'tkGreaterThanOrEqual';
    155: Result := 'tkCast';
    156: Result := 'tkFloat';
+   160: Result := 'tkComment';
+
   end;
 
 end;
@@ -423,6 +426,8 @@ begin
     Result := 158
   else if Token = 'IIF' then
     Result := 159
+  else if Token = '--' then
+    Result := 160
   else
     Result := -199; // unknown token
 end;
@@ -465,6 +470,23 @@ end;
 destructor TSQLParser.Destroy;
 begin
   FreeAndNil(FTokens);
+end;
+
+function TSQLParser.DoesDoubleConstantExpressionExist: Boolean;
+var
+  i : Integer;
+begin
+  Result := False;
+  for i := 0 to FTokens.Count - 1 do
+  begin
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].TokenSQL in [71,72]) and (FTokens[i - 1].TokenSQL in [15, 94, 95, 124, 152, 153]) and (FTokens[i].TokenSQL in [71,72]) then
+        begin
+          Result := True;
+        end;
+      end;
+  end;
 end;
 
 function TSQLParser.DoesStatementModifyDB: Boolean;

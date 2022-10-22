@@ -210,6 +210,10 @@ begin
   begin
     Memo2.Lines.Add('Statement Modifies Database');
   end;
+  if value.DoesDoubleConstantExpressionExist then
+  begin
+    Memo2.Lines.Add('Double Constant Expression EXISTS!!!!!!!!!!!!!!');
+  end;
   if value.IsDDL then
   begin
     Memo2.Lines.Add('Statement is DDL');
