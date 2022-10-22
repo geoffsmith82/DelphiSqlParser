@@ -28,6 +28,8 @@ type
   public
     FTokens: TTokenBucket;
     procedure ProcessSQL(SQL: string);
+    function DoesStatementModifyDB: Boolean;
+    function IsDDL: Boolean;
     constructor Create;
     destructor Destroy; override;
   end;
@@ -354,6 +356,36 @@ end;
 destructor TSQLParser.Destroy;
 begin
   FreeAndNil(FTokens);
+end;
+
+function TSQLParser.DoesStatementModifyDB: Boolean;
+var
+  i : Integer;
+begin
+  Result := False;
+  for i := 0 to FTokens.Count - 1 do
+  begin
+    if FTokens[i].TokenSQL in [8,9,29,31,32,33,34,38,45,48, 51,57,60, 85, 109,110,111,112,113,114,115,116, 119, 121, 122, 123,127,128,129,154] then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+function TSQLParser.IsDDL: Boolean;
+var
+  i : Integer;
+begin
+  Result := False;
+  for i := 0 to FTokens.Count - 1 do
+  begin
+    if FTokens[i].TokenSQL in [9, 34, 57, 85, 109, 111, 112, 113, 114, 119, 121, 122, 128, 129, 154] then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
 end;
 
 procedure TSQLParser.ProcessSQL(SQL: string);
@@ -820,14 +852,11 @@ begin
         end;
       end;
 
-
-
-
       if i - 2 >= 0 then
       begin
         if (FTokens[i - 2].tokenSQL = 2 ) and (FTokens[i].tokenSQL = 19) then
         begin  // WHERE ????.?????
-          FTokens[i - 1 ].tokenSQL := 22;
+          FTokens[i - 1].tokenSQL := 22;
           FTokens[i + 1].tokenSQL := 24;
         end
         else if (FTokens[i - 2].tokenSQL = 2 ) then
@@ -840,7 +869,7 @@ begin
       begin
         if ( (FTokens[i - 2].tokenSQL = 42 ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = 84 ) ) and (FTokens[i].tokenSQL = 19) then
         begin  // ORDER BY ????.?????
-          FTokens[i - 1 ].tokenSQL := 22;
+          FTokens[i - 1].tokenSQL := 22;
           FTokens[i + 1].tokenSQL := 24;
         end
         else if ( (FTokens[i - 2].tokenSQL = 42 ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = 84 ) ) then
@@ -853,7 +882,7 @@ begin
       begin
         if (FTokens[i - 2].tokenSQL = 76 ) and (FTokens[i].tokenSQL = 19) then
         begin  // GROUP BY ????.?????
-          FTokens[i - 1 ].tokenSQL := 22;
+          FTokens[i - 1].tokenSQL := 22;
           FTokens[i + 1].tokenSQL := 24;
         end
         else if (FTokens[i - 2].tokenSQL = 76 ) then
@@ -866,7 +895,7 @@ begin
       begin
         if (FTokens[i - 3].tokenSQL = 84 ) and (FTokens[i - 1].tokenSQL = 19) then
         begin  // ORDER BY3 ????2.1?????0
-          FTokens[i - 2 ].tokenSQL := 22;
+          FTokens[i - 2].tokenSQL := 22;
           FTokens[i].tokenSQL := 24;
         end
       end;
@@ -882,7 +911,7 @@ begin
       begin
         if (FTokens[i - 2].tokenSQL = 32 ) and (FTokens[i].tokenSQL = 19) then
         begin  // SET ????.?????
-          FTokens[i - 1 ].tokenSQL := 22;
+          FTokens[i - 1].tokenSQL := 22;
           FTokens[i + 1].tokenSQL := 24;
         end
         else if (FTokens[i - 2].tokenSQL = 32 ) then

@@ -153,6 +153,14 @@ begin
     if value.FTokens[j].TokenSQL = -199 then
       Inc(undecodedCount);
   end;
+  if value.DoesStatementModifyDB then
+  begin
+    Memo2.Lines.Add('Statement Modifies Database');
+  end;
+  if value.IsDDL then
+  begin
+    Memo2.Lines.Add('Statement is DDL');
+  end;
   Memo2.Lines.Add('Missed Decoding :' + undecodedCount.ToString);
 end;
 
