@@ -37,6 +37,7 @@ type
 
 
 function TokenStringToTokenSQL(info: TTokenInfo): Integer;
+function TokenIdToTokenString(inTokenId:Integer): string;
 
 
 implementation
@@ -46,6 +47,96 @@ uses
   , System.Classes
   , System.StrUtils
   ;
+
+function TokenIdToTokenString(inTokenId:Integer): string;
+begin
+  case inTokenId of
+    0 : Result := 'tkSELECT';
+    1 : Result := 'tkFROM';
+    2 : Result := 'tkWHERE';
+    8 : Result := 'tkInto';
+    9 : Result := 'tkOrder';
+   14 : Result := 'tkAsterisk';
+   15 : Result := 'tkEquals';
+   16 : Result := 'tkEndStatement';
+   19 : Result := 'tkDotSeperator';
+   20 : Result := 'tkAS';
+   21 : Result := 'tkOn';
+   22 : Result := 'tkTableName';
+   24 : Result := 'tkFieldName';
+   31 : Result := 'tkUpdate';
+   32 : Result := 'tkSet';
+   36 : Result := 'tkBetween';
+   37 : Result := 'tkCase';
+   38 : Result := 'tkDelete';
+   39 : Result := 'tkHaving';
+   40 : Result := 'tkLIKE';
+   42 : Result := 'tkDISTINCT';
+   44 : Result := 'tkTop';
+   48 : Result := 'tkAdd';
+   52 : Result := 'tkValues';
+   53 : Result := 'tkAsc';
+   54 : Result := 'tkDesc';
+   56 : Result := 'tkEnd';
+   57 : Result := 'tkGrant';
+   58 : Result := 'tkTo';
+   66 : Result := 'tkDatabaseName';
+   67 : Result := 'tkViewName';
+   70 : Result := 'tkUsername';
+   71 : Result := 'tkConstantNumber';
+   72 : Result := 'tkConstantString';
+   73 : Result := 'tkUse';
+   76 : Result := 'tkGroupBy';
+   77 : Result := 'tkSchemaName';
+   80 : Result := 'tkInnerJoin';
+   82 : Result := 'tkRightJoin';
+   84 : Result := 'tkOrderBy';
+   85 : Result := 'tkCreateDatabase';
+   86 : Result := 'tkSum';
+   87 : Result := 'tkCount';
+   88 : Result := 'tkAvg';
+   89 : Result := 'tkExists';
+   91 : Result := 'tkAnd';
+   93 : Result := 'tkComma';
+   94 : Result := 'tkLessThan';
+   95 : Result := 'tkGreaterThan';
+   96 : Result := 'tkDivide';
+   98 : Result := 'tkUNION';
+   99 : Result := 'tkNULL';
+   106: Result := 'tkVarchar';
+   107: Result := 'tkInt';
+   108: Result := 'tkModify';
+   109: Result := 'tkCreateView';
+   112: Result := 'tkDropDatabase';
+   113: Result := 'tkDropView';
+   114: Result := 'tkDropTable';
+   116: Result := 'tkTruncateTable';
+   119: Result := 'tkAlterTable';
+   121: Result := 'tkCreateIndex';
+   123: Result := 'tkDeleteFrom';
+   124: Result := 'tkNotEqual';
+   125: Result := 'tkBackupDatabase';
+   126: Result := 'tkToDisk';
+   127: Result := 'tkInsertInto';
+   128: Result := 'tkDropUser';
+   129: Result := 'tkDropConstraint';
+   130: Result := 'tkIndexName';
+   131: Result := 'tkConstraintName';
+   132: Result := 'tkLockTables';
+   133: Result := 'tkUnlockTables';
+   137: Result := 'tkDouble';
+   138: Result := 'tkDefault';
+   140: Result := 'tkMax';
+   141: Result := 'tkNotNull';
+   142: Result := 'tkZeroFill';
+   143: Result := 'tkUnsigned';
+   144: Result := 'tkMin';
+   152: Result := 'tkLessThanOrEqual';
+
+  end;
+
+end;
+
 
 function TokenStringToTokenSQL(info: TTokenInfo): Integer;
 var
@@ -833,7 +924,10 @@ begin
       end
       else if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = 1) then
       begin // SELECT ???? FROM
-        FTokens[i].tokenSQL := 24;
+        if FTokens[i].Token = '*' then
+          FTokens[i].tokenSQL := 14
+        else
+          FTokens[i].tokenSQL := 24;
       end;
 
       if i - 2 >= 0 then

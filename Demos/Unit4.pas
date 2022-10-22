@@ -47,10 +47,23 @@ type
     tblTestSQLStatements: TFDTable;
     dsTestSQLStatements: TDataSource;
     DBGrid1: TDBGrid;
+    tblTestSQLStatementTokens: TFDTable;
+    dsSQLStatementTokens: TDataSource;
+    DBGrid2: TDBGrid;
+    tblTestSQLStatementsID: TFDAutoIncField;
+    tblTestSQLStatementsDialect: TWideStringField;
+    tblTestSQLStatementsStatements: TWideMemoField;
+    tblTestSQLStatementTokensTestSqlId: TFDAutoIncField;
+    tblTestSQLStatementTokensStatementID: TIntegerField;
+    tblTestSQLStatementTokensPositionNo: TIntegerField;
+    tblTestSQLStatementTokensTokenText: TWideStringField;
+    tblTestSQLStatementTokensTokenID: TIntegerField;
+    tblTestSQLStatementTokensTokenTypeName: TStringField;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
+    procedure tblTestSQLStatementTokensCalcFields(DataSet: TDataSet);
   private
     { Private declarations }
     value : TSQLParser;
@@ -80,6 +93,9 @@ begin
   FDConnection1.Params.Database := filename;
   FDConnection1.Connected := True;
   tblTestSQLStatements.Active := True;
+  tblTestSQLStatementTokens.Active := True;
+  tblTestSQLStatements.AfterScroll := tblTestSQLStatementsAfterScroll;
+
 end;
 
 procedure TForm4.Button1Click(Sender: TObject);
@@ -153,6 +169,22 @@ begin
     if value.FTokens[j].TokenSQL = -199 then
       Inc(undecodedCount);
   end;
+  if tblTestSQLStatementTokens.RecordCount = 0 then
+  begin
+    for j := 0 to value.FTokens.Count - 1 do
+    begin
+      tblTestSQLStatementTokens.Append;
+      tblTestSQLStatementTokens.FieldByName('StatementID').AsInteger := tblTestSQLStatementsID.AsInteger;
+      tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger := j;
+      tblTestSQLStatementTokens.FieldByName('TokenText').AsString := value.FTokens[j].Token;
+      tblTestSQLStatementTokens.FieldByName('TokenID').AsInteger := value.FTokens[j].TokenSQL;
+
+
+      tblTestSQLStatementTokens.Post;
+    end;
+  end;
+
+
   if value.DoesStatementModifyDB then
   begin
     Memo2.Lines.Add('Statement Modifies Database');
@@ -162,6 +194,11 @@ begin
     Memo2.Lines.Add('Statement is DDL');
   end;
   Memo2.Lines.Add('Missed Decoding :' + undecodedCount.ToString);
+end;
+
+procedure TForm4.tblTestSQLStatementTokensCalcFields(DataSet: TDataSet);
+begin
+  DataSet.FieldByName('TokenTypeName').AsString := TokenIdToTokenString(DataSet.FieldByName('TokenID').AsInteger);
 end;
 
 end.
