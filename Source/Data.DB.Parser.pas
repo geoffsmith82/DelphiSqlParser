@@ -54,16 +54,20 @@ begin
     0 : Result := 'tkSELECT';
     1 : Result := 'tkFROM';
     2 : Result := 'tkWHERE';
-    8 : Result := 'tkInto';
-    9 : Result := 'tkOrder';
+    8 : Result := 'tkJoin';
+    9 : Result := 'tkInto';
+   10 : Result := 'tkOrder';
    14 : Result := 'tkAsterisk';
    15 : Result := 'tkEquals';
    16 : Result := 'tkEndStatement';
+   17 : Result := 'tkLeftBracket';
+   18 : Result := 'tkRightBracket';
    19 : Result := 'tkDotSeperator';
    20 : Result := 'tkAS';
    21 : Result := 'tkOn';
    22 : Result := 'tkTableName';
    24 : Result := 'tkFieldName';
+   25 : Result := 'tkFieldRefName';
    31 : Result := 'tkUpdate';
    32 : Result := 'tkSet';
    36 : Result := 'tkBetween';
@@ -89,6 +93,7 @@ begin
    76 : Result := 'tkGroupBy';
    77 : Result := 'tkSchemaName';
    80 : Result := 'tkInnerJoin';
+   81 : Result := 'tkLeftJoin';
    82 : Result := 'tkRightJoin';
    84 : Result := 'tkOrderBy';
    85 : Result := 'tkCreateDatabase';
@@ -96,6 +101,7 @@ begin
    87 : Result := 'tkCount';
    88 : Result := 'tkAvg';
    89 : Result := 'tkExists';
+   90 : Result := 'tkOr';
    91 : Result := 'tkAnd';
    93 : Result := 'tkComma';
    94 : Result := 'tkLessThan';
@@ -131,8 +137,11 @@ begin
    142: Result := 'tkZeroFill';
    143: Result := 'tkUnsigned';
    144: Result := 'tkMin';
+   149: Result := 'tkPlus';
    152: Result := 'tkLessThanOrEqual';
-
+   153: Result := 'tkGreaterThanOrEqual';
+   155: Result := 'tkCast';
+   156: Result := 'tkFloat';
   end;
 
 end;
@@ -404,7 +413,16 @@ begin
   // Result := 153 // >=
  // else if Token = 'ALTER COLUMN' then
  //   Result := 154 // ]
-
+  else if Token = 'CAST' then
+    Result := 155
+  else if Token = 'FLOAT' then
+    Result := 156
+  else if Token = 'CURRENT_DATE' then
+    Result := 157
+  else if Token = 'CURRENT_TIME' then
+    Result := 158
+  else if Token = 'IIF' then
+    Result := 159
   else
     Result := -199; // unknown token
 end;
@@ -515,6 +533,8 @@ begin
         info := TTokenInfo.Create;
         info.TokenType := parser.Token;
         info.Token := parser.TokenString;
+        if (info.TokenType = #2) and (info.Token = #0) then
+          info.Token := '#';
         info.TokenSQL := TokenStringToTokenSQL(info);
   //    Memo2.Lines.Add(token + ' ' + info.TokenSQL.ToString);
         FTokens.Add(info);
@@ -1191,6 +1211,14 @@ begin
         if (FTokens[i - 2].tokenSQL = 48 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 106) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := 24;
+        end;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].tokenSQL = 20 ) and (FTokens[i - 1].tokenSQL = -199) and (FTokens[i-0].tokenSQL = 93) then
+        begin //  AS 2 ????1 ,0
+          FTokens[i - 1].tokenSQL := 25;
         end;
       end;
 

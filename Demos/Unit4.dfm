@@ -143,11 +143,23 @@ object Form4: TForm4
         Visible = True
       end>
   end
+  object Button3: TButton
+    Left = 400
+    Top = 1340
+    Width = 508
+    Height = 63
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
+    Caption = 'Test SQL and Compare from DB'
+    TabOrder = 6
+    OnClick = Button3Click
+  end
   object FDConnection1: TFDConnection
     Params.Strings = (
       'Database=D:\Programming\DelphiSQLParser\Source\SQLParserDB.mdb'
       'DriverID=MSAcc')
-    Connected = True
     LoginPrompt = False
     Left = 352
     Top = 120

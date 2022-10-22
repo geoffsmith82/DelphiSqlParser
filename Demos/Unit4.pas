@@ -59,9 +59,11 @@ type
     tblTestSQLStatementTokensTokenText: TWideStringField;
     tblTestSQLStatementTokensTokenID: TIntegerField;
     tblTestSQLStatementTokensTokenTypeName: TStringField;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
     procedure tblTestSQLStatementTokensCalcFields(DataSet: TDataSet);
   private
@@ -138,6 +140,27 @@ begin
   end;
 end;
 
+procedure TForm4.Button3Click(Sender: TObject);
+var
+  i: Integer;
+begin
+   tblTestSQLStatementsAfterScroll(tblTestSQLStatements);
+  repeat
+    Assert(value.FTokens.Count  = tblTestSQLStatementTokens.RecordCount);
+    for i := 0 to value.FTokens.Count - 1 do
+    begin
+      OutputDebugString(PChar('i = ' + i.ToString));
+      if tblTestSQLStatementTokens.Locate('PositionNo', i, []) then
+      begin
+        Assert(value.FTokens[i].Token = tblTestSQLStatementTokensTokenText.AsString);
+        Assert(value.FTokens[i].TokenSQL = tblTestSQLStatementTokensTokenID.AsInteger);
+      end;
+    end;
+
+    tblTestSQLStatements.Next;
+  until tblTestSQLStatements.Eof;
+end;
+
 procedure TForm4.ProcessSQL(SQL: string);
 var
   i : Integer;
@@ -147,9 +170,9 @@ begin
   for i := 0 to value.FTokens.Count - 1 do
   begin
     if value.FTokens[i].TokenSQL = -199 then
-      Memo2.Lines.Add('============= ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString)
+      Memo2.Lines.Add(i.ToString + '   ============= ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString)
     else
-    Memo2.Lines.Add(value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString);
+    Memo2.Lines.Add(i.ToString +  '   ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString);
   end;
 end;
 
@@ -178,8 +201,6 @@ begin
       tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger := j;
       tblTestSQLStatementTokens.FieldByName('TokenText').AsString := value.FTokens[j].Token;
       tblTestSQLStatementTokens.FieldByName('TokenID').AsInteger := value.FTokens[j].TokenSQL;
-
-
       tblTestSQLStatementTokens.Post;
     end;
   end;
