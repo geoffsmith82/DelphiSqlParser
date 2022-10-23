@@ -93,6 +93,7 @@ type
     tkExists = 89;// : Result := 'tkExists';
     tkOr = 90; // : Result := 'tkOr';
     tkAnd = 91; // : Result := 'tkAnd';
+    tkNot = 92;
     tkComma = 93; // : Result := 'tkComma';
     tkLessThan = 94; //: Result := 'tkLessThan';
     tkGreaterThan = 95; //: Result := 'tkGreaterThan';
@@ -118,6 +119,7 @@ type
     tkDeleteFrom = 123; // Result := 123 DELETE FROM
     tkNotEqual = 124;// Result := 124 <>
     tkBackupDatabase = 125;
+    tkInsertInto = 127;
     tkDropConstraint = 129;
     tkIndexName = 130;//: Result := 'tkIndexName';
     tkConstraintName = 131;// : Result := 'tkConstraintName';
@@ -256,7 +258,7 @@ begin
    TTokenTypes.tkNotEqual: Result := 'tkNotEqual';
    TTokenTypes.tkBackupDatabase: Result := 'tkBackupDatabase';
    126: Result := 'tkToDisk';
-   127: Result := 'tkInsertInto';
+   TTokenTypes.tkInsertInto: Result := 'tkInsertInto';
    128: Result := 'tkDropUser';
    TTokenTypes.tkDropConstraint: Result := 'tkDropConstraint';
    130: Result := 'tkIndexName';
@@ -799,7 +801,7 @@ begin
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkInsert) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkInto)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 127;  // INSERT INTO
+        FTokens[i].TokenSQL := TTokenTypes.tkInsertInto;  // INSERT INTO
       end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = 51)) then
       begin
@@ -847,20 +849,20 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkDeleteFrom;  // DELETE FROM
       end
-      else if ((FTokens[i].TokenSQL = 94) and (FTokens[i + 1].TokenSQL = 95)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkLessThan) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkGreaterThan)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkNotEqual;  // <>
       end
-      else if ((FTokens[i].TokenSQL = 94) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkEquals)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkLessThan) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkEquals)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 152;  // <=
+        FTokens[i].TokenSQL := TTokenTypes.tkLessThanOrEqual;  // <=
       end
-      else if ((FTokens[i].TokenSQL = 95) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkEquals)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkGreaterThan) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkEquals)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 153;  // >=
+        FTokens[i].TokenSQL := TTokenTypes.tkGreaterThanOrEqual;  // >=
       end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkAlter) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkCOLUMN)) then
       begin
@@ -877,10 +879,10 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 126;  // TO DISK
       end
-      else if ((FTokens[i].TokenSQL = 92) and (FTokens[i + 1].TokenSQL = 99)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkNot) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkNULL)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 141;  // NOT NULL
+        FTokens[i].TokenSQL := TTokenTypes.tkNotNull;  // NOT NULL
       end
       else if ((FTokens[i].TokenSQL = 117) and (FTokens[i + 1].TokenSQL = 89)) then
       begin
