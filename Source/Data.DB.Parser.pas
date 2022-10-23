@@ -77,6 +77,7 @@ begin
    38 : Result := 'tkDelete';
    39 : Result := 'tkHaving';
    40 : Result := 'tkLIKE';
+   41 : Result := 'tkLimit';
    42 : Result := 'tkDISTINCT';
    44 : Result := 'tkTop';
    48 : Result := 'tkAdd';
@@ -145,7 +146,8 @@ begin
    155: Result := 'tkCast';
    156: Result := 'tkFloat';
    160: Result := 'tkComment';
-
+   161: Result := 'tkConcat';
+   162: Result := 'tkSubstr';
   end;
 
 end;
@@ -429,6 +431,10 @@ begin
     Result := 159
   else if Token = '--' then
     Result := 160
+  else if Token = 'CONCAT' then
+    Result := 161
+  else if Token = 'SUBSTR' then
+    Result := 162
   else
     Result := -199; // unknown token
 end;
