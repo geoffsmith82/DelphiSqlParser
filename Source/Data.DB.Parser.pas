@@ -76,6 +76,11 @@ type
     tkEnd = 56;
     tkGrant = 57;
     tkTo = 58;
+    tkRevoke = 59;
+    tkView = 60;
+    tkReplace = 61;
+    tkTrigger = 62;
+    tkCommit = 63;
     tkDatabaseName = 66;
     tkViewName = 67;
     tkUsername = 70;
@@ -127,6 +132,7 @@ type
     tkDeleteFrom = 123; // Result := 123 DELETE FROM
     tkNotEqual = 124;// Result := 124 <>
     tkBackupDatabase = 125;
+    tkToDisk = 126;
     tkInsertInto = 127;
     tkDropConstraint = 129;
     tkIndexName = 130;//: Result := 'tkIndexName';
@@ -143,6 +149,8 @@ type
     tkZeroFill = 142;// : Result := 'tkZeroFill';
     tkUnsigned = 143;//: Result := 'tkUnsigned';
     tkMin = 144; //: Result := 'tkMin';
+//    tkIndexName = 145;
+    tkFunctionName = 147;
     tkPlus = 149; //: Result := 'tkPlus';
     tkLessThanOrEqual = 152;// : Result := 'tkLessThanOrEqual';
     tkGreaterThanOrEqual = 153;//: Result := 'tkGreaterThanOrEqual';
@@ -266,7 +274,7 @@ begin
    TTokenTypes.tkDeleteFrom: Result := 'tkDeleteFrom';
    TTokenTypes.tkNotEqual: Result := 'tkNotEqual';
    TTokenTypes.tkBackupDatabase: Result := 'tkBackupDatabase';
-   126: Result := 'tkToDisk';
+   TTokenTypes.tkToDisk: Result := 'tkToDisk';
    TTokenTypes.tkInsertInto: Result := 'tkInsertInto';
    128: Result := 'tkDropUser';
    TTokenTypes.tkDropConstraint: Result := 'tkDropConstraint';
@@ -387,7 +395,7 @@ begin
   else if Token = 'WITH' then
     Result := TTokenTypes.tkWith
   else if Token = 'TOP' then
-    Result := 44
+    Result := TTokenTypes.tkTop
   else if Token = 'DROP' then
     Result := TTokenTypes.tkDrop
   else if Token = 'TRUNCATE' then
@@ -401,31 +409,31 @@ begin
   else if Token = 'CONSTRAINT' then
     Result := TTokenTypes.tkConstraint
   else if Token = 'INDEX' then
-    Result := 51
+    Result := TTokenTypes.tkIndex
   else if Token = 'VALUES' then
-    Result := 52
+    Result := TTokenTypes.tkValues
   else if Token = 'ASC' then
-    Result := 53
+    Result := TTokenTypes.tkAsc
   else if Token = 'DESC' then
-    Result := 54
+    Result := TTokenTypes.tkDesc
   else if Token = 'ELSE' then
     Result := TTokenTypes.tkElse
   else if Token = 'END' then
-    Result := 56
+    Result := TTokenTypes.tkEnd
   else if Token = 'GRANT' then
-    Result := 57
+    Result := TTokenTypes.tkGrant
   else if Token = 'TO' then
-    Result := 58
+    Result := TTokenTypes.tkTo
   else if Token = 'REVOKE' then
-    Result := 59
+    Result := TTokenTypes.tkRevoke
   else if Token = 'VIEW' then
-    Result := 60
+    Result := TTokenTypes.tkView
   else if Token = 'REPLACE' then
-    Result := 61
+    Result := TTokenTypes.tkReplace
   else if Token = 'TRIGGER' then
-    Result := 62
+    Result := TTokenTypes.tkTrigger
   else if Token = 'COMMIT' then
-    Result := 63
+    Result := TTokenTypes.tkCommit
   else if Token = 'ROLLBACK' then
     Result := 64
   else if Token = 'DATABASE' then
@@ -886,7 +894,7 @@ begin
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkTo) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkDisk)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 126;  // TO DISK
+        FTokens[i].TokenSQL := TTokenTypes.tkToDisk;  // TO DISK
       end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkNot) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkNULL)) then
       begin
@@ -913,7 +921,7 @@ begin
       if (i - 3 >= 0) and (FTokens[i - 3].TokenSQL = TTokenTypes.tkFROM) and {'FROM3 schema2.1tablename0'}
          (FTokens[i - 1].TokenSQL = TTokenTypes.tkDotSeperator) then
       begin
-        FTokens[i - 2].TokenSQL := 77;
+        FTokens[i - 2].TokenSQL := TTokenTypes.tkSchemaName;
         FTokens[i - 0].TokenSQL := TTokenTypes.tkTableName;
       end;
 
@@ -921,7 +929,7 @@ begin
          (FTokens[i - 1].TokenSQL = TTokenTypes.tkDotSeperator) then
       begin
         FTokens[i - 2].TokenSQL := TTokenTypes.tkTableName;
-        FTokens[i - 0].TokenSQL := 145;
+        FTokens[i - 0].TokenSQL := TTokenTypes.tkIndexName;
       end;
 
 
@@ -984,7 +992,7 @@ begin
 
       if i - 2 >= 0 then
       begin   // BACKUPDATABASE2 ????1 TODISK0
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkBackupDatabase) and (FTokens[i].tokenSQL = 126) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkBackupDatabase) and (FTokens[i].tokenSQL = TTokenTypes.tkToDisk) then
           FTokens[i - 1].TokenSQL := TTokenTypes.tkTableName;
       end;
 
@@ -1500,7 +1508,7 @@ begin
       begin
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkUnknownToken ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkLeftBracket) and (FTokens[i-0].tokenSQL = TTokenTypes.tkRightBracket) then
         begin //  TABLE 2 ????1 (0
-          FTokens[i - 2].tokenSQL := 147;
+          FTokens[i - 2].tokenSQL := TTokenTypes.tkFunctionName;
         end;
       end;
 
