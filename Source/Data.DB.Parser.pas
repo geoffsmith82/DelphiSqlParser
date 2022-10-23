@@ -168,7 +168,8 @@ type
     tkSubstr = 162; //: Result := 'tkSubstr';
     tkCreateTemporaryTable = 164;
     tkParam = 165;
-
+    tkAll = 166;
+    tkUnionAll = 167;
     tkUnknownToken = -199;
   end;
 
@@ -309,6 +310,7 @@ begin
     TTokenTypes.tkConcat : Result := 'tkConcat';
     TTokenTypes.tkSubstr : Result := 'tkSubstr';
     TTokenTypes.tkParam : Result := 'tkParam';
+    TTokenTypes.tkUnionAll: Result := 'tkUnionAll';
   end;
 
 end;
@@ -596,6 +598,8 @@ begin
     Result := 161
   else if Token = 'SUBSTR' then
     Result := 162
+  else if Token = 'ALL' then
+    Result := TTokenTypes.tkAll
   else
     Result := TTokenTypes.tkUnknownToken; // unknown token
 end;
@@ -740,6 +744,11 @@ begin
       begin
         FTokens.Join(i);  // INNER JOIN
         FTokens[i].TokenSQL := TTokenTypes.tkInnerJoin;
+      end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkUNION) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkAll)) then
+      begin
+        FTokens.Join(i);  // UNION ALL
+        FTokens[i].TokenSQL := TTokenTypes.tkUnionAll;
       end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkLeft) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkJoin)) then
       begin
