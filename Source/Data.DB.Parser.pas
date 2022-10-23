@@ -73,6 +73,9 @@ type
     tkAsc = 53; // Result := 53
     tkDesc = 54; // Result := 54
     tkElse = 55;
+    tkEnd = 56;
+    tkGrant = 57;
+    tkTo = 58;
     tkDatabaseName = 66;
     tkViewName = 67;
     tkUsername = 70;
@@ -100,8 +103,13 @@ type
     tkDivide = 96; // : Result := 'tkDivide';
     tkUNION = 98; // : Result := 'tkUNION';
     tkNULL = 99; // : Result := 'tkNULL';
-
+    tkIs = 101;
+//    tkElse = 102;
+    tkThen = 103;
+    tkBackup = 104;
+    tkDisk = 105;
     tkVarchar = 106;
+    tkInt = 107;
     tkCreateView = 109; // Result := 109 CREATE VIEW
     tkCreateUser = 110; // Result := 110 CREATE USER
     tkCreateTable = 111; // Result := 111 CREATE TABLE
@@ -138,6 +146,7 @@ type
     tkPlus = 149; //: Result := 'tkPlus';
     tkLessThanOrEqual = 152;// : Result := 'tkLessThanOrEqual';
     tkGreaterThanOrEqual = 153;//: Result := 'tkGreaterThanOrEqual';
+    tkAlterColumn = 154;
     tkCast = 155;//: Result := 'tkCast';
     tkFloat = 156; //: Result := 'tkFloat';
     tkComment = 160; //: Result := 'tkComment';
@@ -215,10 +224,10 @@ begin
    52 : Result := 'tkValues';
    53 : Result := 'tkAsc';
    54 : Result := 'tkDesc';
-   55 : Result := 'tkElse';
-   56 : Result := 'tkEnd';
-   57 : Result := 'tkGrant';
-   58 : Result := 'tkTo';
+    TTokenTypes.tkElse : Result := 'tkElse';
+   TTokenTypes.tkEnd : Result := 'tkEnd';
+   TTokenTypes.tkGrant : Result := 'tkGrant';
+   TTokenTypes.tkTo : Result := 'tkTo';
    TTokenTypes.tkDatabaseName : Result := 'tkDatabaseName';
    TTokenTypes.tkViewName : Result := 'tkViewName';
    TTokenTypes.tkUsername : Result := 'tkUsername';
@@ -450,41 +459,41 @@ begin
   else if Token = 'EXISTS' then
     Result := 89 // EXISTS
   else if Token = 'OR' then
-    Result := 90 // OR
+    Result := TTokenTypes.tkOr // OR
   else if Token = 'AND' then
-    Result := 91 // AND
+    Result := TTokenTypes.tkAnd // AND
   else if Token = 'NOT' then
-    Result := 92 // OR
+    Result := TTokenTypes.tkNot // OR
   else if Token = ',' then
     Result := TTokenTypes.tkComma // ,
   else if Token = '<' then
-    Result := 94 // <
+    Result := TTokenTypes.tkLessThan // <
   else if Token = '>' then
-    Result := 95 // >
+    Result := TTokenTypes.tkGreaterThan // >
   else if Token = '/' then
     Result := 96 // /
   else if Token = '*' then
     Result := 97 // *
   else if Token = 'UNION' then
-    Result := 98 // *
+    Result := TTokenTypes.tkUNION // UNION
   else if Token = 'NULL' then
-    Result := 99 // *
+    Result := TTokenTypes.tkNULL // *
   else if Token = 'WHEN' then
     Result := 100 // *
   else if Token = 'IS' then
-    Result := 101 // *
+    Result := TTokenTypes.tkIs // *
   else if Token = 'ELSE' then
     Result := 102 // *
   else if Token = 'THEN' then
-    Result := 103 // *
+    Result := TTokenTypes.tkThen // *
   else if Token = 'BACKUP' then
-    Result := 104 // *
+    Result := TTokenTypes.tkBackup // *
   else if Token = 'DISK' then
-    Result := 105 // *
+    Result := TTokenTypes.tkDisk // *
   else if Token = 'VARCHAR' then
     Result := TTokenTypes.tkVarchar // *
   else if Token = 'INT' then
-    Result := 107 // *
+    Result := TTokenTypes.tkInt // *
   else if Token = 'MODIFY' then
     Result := 108 // *
   // Result := 109 CREATE VIEW
@@ -500,7 +509,7 @@ begin
   // Result := 118 IF EXISTS
   // Result := 119 ALTER TABLE
   else if Token = 'INDEX' then
-    Result := 120 // INDEX
+    Result := TTokenTypes.tkIndex // INDEX
   // Result := 121 CREATE INDEX
   // Result := 122 DROP INDEX
   // Result := 123 DELETE FROM
@@ -550,7 +559,7 @@ begin
   // Result := 152 // <=
   // Result := 153 // >=
  // else if Token = 'ALTER COLUMN' then
- //   Result := 154 // ]
+ //   Result := TTokenTypes.tkAlterColumn // ]
   else if Token = 'CAST' then
     Result := TTokenTypes.tkCast
   else if Token = 'FLOAT' then
@@ -651,7 +660,7 @@ begin
   Result := False;
   for i := 0 to FTokens.Count - 1 do
   begin
-    if FTokens[i].TokenSQL in [TTokenTypes.tkJoin,TTokenTypes.tkInto,29,31,TTokenTypes.tkSet,33,TTokenTypes.tkCreate,38,45,TTokenTypes.tkAdd, 51,57,60, 85, 109,110,111,TTokenTypes.tkDropDatabase,113,114,115,116, 119, TTokenTypes.tkCreateIndex, 122, 123,127,128,129,154] then
+    if FTokens[i].TokenSQL in [TTokenTypes.tkJoin,TTokenTypes.tkInto,29,31,TTokenTypes.tkSet,33,TTokenTypes.tkCreate,38,45,TTokenTypes.tkAdd, 51,57,60, 85, 109,110,111,TTokenTypes.tkDropDatabase,113,114,115,116, 119, TTokenTypes.tkCreateIndex, 122, 123,127,128,129,TTokenTypes.tkAlterColumn] then
     begin
       Result := True;
       Exit;
@@ -666,7 +675,7 @@ begin
   Result := False;
   for i := 0 to FTokens.Count - 1 do
   begin
-    if FTokens[i].TokenSQL in [TTokenTypes.tkInto, TTokenTypes.tkCreate, 57, 85, 109, 111, TTokenTypes.tkDropDatabase, 113, 114, 119, TTokenTypes.tkCreateIndex, 122, 128, 129, 154] then
+    if FTokens[i].TokenSQL in [TTokenTypes.tkInto, TTokenTypes.tkCreate, 57, 85, 109, 111, TTokenTypes.tkDropDatabase, 113, 114, 119, TTokenTypes.tkCreateIndex, 122, 128, 129, TTokenTypes.tkAlterColumn] then
     begin
       Result := True;
       Exit;
@@ -828,7 +837,7 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkCreateUser;  // CREATE USER
       end
-      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = 120)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkIndex)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkCreateIndex;  // CREATE INDEX
@@ -867,14 +876,14 @@ begin
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkAlter) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkCOLUMN)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 154;  // ALTER COLUMN
+        FTokens[i].TokenSQL := TTokenTypes.tkAlterColumn;  // ALTER COLUMN
       end
-      else if ((FTokens[i].TokenSQL = 104) and (FTokens[i + 1].TokenSQL = 65)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkBackup) and (FTokens[i + 1].TokenSQL = 65)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkBackupDatabase;  // BACKUP DATABASE
       end
-      else if ((FTokens[i].TokenSQL = 58) and (FTokens[i + 1].TokenSQL = 105)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkTo) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkDisk)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 126;  // TO DISK
@@ -884,7 +893,7 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkNotNull;  // NOT NULL
       end
-      else if ((FTokens[i].TokenSQL = 117) and (FTokens[i + 1].TokenSQL = 89)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkIf) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkExists)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkIfExists;  // IF EXISTS
@@ -1248,7 +1257,7 @@ begin
 
       if i - 3 >= 0 then  // DROP INDEX3 ????2.1????0
       begin
-        if (FTokens[i - 3].TokenSQL = 122) and (FTokens[i - 1].TokenSQL = TTokenTypes.tkDotSeperator) then
+        if (FTokens[i - 3].TokenSQL = TTokenTypes.tkDropIndex) and (FTokens[i - 1].TokenSQL = TTokenTypes.tkDotSeperator) then
         begin
           FTokens[i - 2].TokenSQL := TTokenTypes.tkFieldName;
           FTokens[i - 0].TokenSQL := 130;
@@ -1264,7 +1273,7 @@ begin
       end;
       if i - 1 >= 0 then  // INSERT INTO ????
       begin
-        if (FTokens[i - 1].TokenSQL = 127) then
+        if (FTokens[i - 1].TokenSQL = TTokenTypes.tkInsertInto) then
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkTableName;
         end
@@ -1280,9 +1289,9 @@ begin
 
       if i - 5 >= 0 then  // GRANT5 operation4 ON3 object2 TO1 user0
       begin
-        if (FTokens[i - 5].tokenSQL = 57) and
+        if (FTokens[i - 5].tokenSQL = TTokenTypes.tkGrant) and
            (FTokens[i - 3].tokenSQL = TTokenTypes.tkOn) and
-           (FTokens[i - 1].tokenSQL = 58) and
+           (FTokens[i - 1].tokenSQL = TTokenTypes.tkTo) and
            (MatchStr(FTokens[i - 4].token, ['SELECT', 'INSERT', 'DELETE']) = TRUE)
         then
         begin
@@ -1295,7 +1304,7 @@ begin
      if i - 3 >= 0 then  // ON3 object2 TO1 user0
       begin
         if (FTokens[i - 3].tokenSQL = TTokenTypes.tkOn) and
-           (FTokens[i - 1].tokenSQL = 58)
+           (FTokens[i - 1].tokenSQL = TTokenTypes.tkTo)
         then
         begin
           FTokens[i - 2].TokenSQL := 68;
@@ -1409,7 +1418,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkLeftBracket ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 107) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkLeftBracket ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkInt) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1425,7 +1434,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkComma ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 107) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkComma ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkInt) then
         begin //  , 2 ????1 VARCHAR0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1433,7 +1442,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 154 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkVarchar) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkAlterColumn ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkVarchar) then
         begin //  COLUMN 2 ????1 VARCHAR0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
