@@ -60,6 +60,7 @@ type
     tkLIKE = 40; // : Result := 'tkLIKE';
     tkLimit = 41; // : Result := 'tkLimit';
     tkDISTINCT = 42;
+    tkTop = 44;
     tkDrop = 45;
     tkTRUNCATE = 46; // Result := 46
     tkCOLUMN = 47; // Result := 47
@@ -104,6 +105,27 @@ type
     tkNotEqual = 124;// Result := 124 <>
     tkBackupDatabase = 125;
     tkDropConstraint = 129;
+    tkIndexName = 130;//: Result := 'tkIndexName';
+    tkConstraintName = 131;// : Result := 'tkConstraintName';
+    tkLockTables = 132; //: Result := 'tkLockTables';
+    tkUnlockTables = 133; //: Result := 'tkUnlockTables';
+    tkDouble = 137;//: Result := 'tkDouble';
+    tkDefault = 138; //: Result := 'tkDefault';
+    tkMax = 140; //: Result := 'tkMax';
+    tkNotNull = 141; //: Result := 'tkNotNull';
+    tkZeroFill = 142;// : Result := 'tkZeroFill';
+    tkUnsigned = 143;//: Result := 'tkUnsigned';
+    tkMin = 144; //: Result := 'tkMin';
+    tkPlus = 149; //: Result := 'tkPlus';
+    tkLessThanOrEqual = 152;// : Result := 'tkLessThanOrEqual';
+    tkGreaterThanOrEqual = 153;//: Result := 'tkGreaterThanOrEqual';
+    tkCast = 155;//: Result := 'tkCast';
+    tkFloat = 156; //: Result := 'tkFloat';
+    tkComment = 160; //: Result := 'tkComment';
+    tkConcat = 161; //: Result := 'tkConcat';
+    tkSubstr = 162; //: Result := 'tkSubstr';
+
+
     tkUnknownToken = -199;
   end;
 
@@ -169,8 +191,8 @@ begin
     TTokenTypes.tkLIKE : Result := 'tkLIKE';
     TTokenTypes.tkLimit : Result := 'tkLimit';
     TTokenTypes.tkDISTINCT : Result := 'tkDISTINCT';
-    44 : Result := 'tkTop';
-   TTokenTypes.tkAdd : Result := 'tkAdd';
+    TTokenTypes.tkTop : Result := 'tkTop';
+    TTokenTypes.tkAdd : Result := 'tkAdd';
    52 : Result := 'tkValues';
    53 : Result := 'tkAsc';
    54 : Result := 'tkDesc';
@@ -183,14 +205,14 @@ begin
    70 : Result := 'tkUsername';
    71 : Result := 'tkConstantNumber';
    72 : Result := 'tkConstantString';
-   TTokenTypes.tkUse : Result := 'tkUse';
-   TTokenTypes.tkGroupBy : Result := 'tkGroupBy';
+    TTokenTypes.tkUse : Result := 'tkUse';
+    TTokenTypes.tkGroupBy : Result := 'tkGroupBy';
    77 : Result := 'tkSchemaName';
-   TTokenTypes.tkInnerJoin : Result := 'tkInnerJoin';
-   TTokenTypes.tkLeftJoin : Result := 'tkLeftJoin';
-   TTokenTypes.tkRightJoin : Result := 'tkRightJoin';
-   TTokenTypes.tkOrderBy : Result := 'tkOrderBy';
-   TTokenTypes.tkCreateDatabase : Result := 'tkCreateDatabase';
+    TTokenTypes.tkInnerJoin : Result := 'tkInnerJoin';
+    TTokenTypes.tkLeftJoin : Result := 'tkLeftJoin';
+    TTokenTypes.tkRightJoin : Result := 'tkRightJoin';
+    TTokenTypes.tkOrderBy : Result := 'tkOrderBy';
+    TTokenTypes.tkCreateDatabase : Result := 'tkCreateDatabase';
    86 : Result := 'tkSum';
    87 : Result := 'tkCount';
    88 : Result := 'tkAvg';
@@ -226,19 +248,19 @@ begin
    133: Result := 'tkUnlockTables';
    137: Result := 'tkDouble';
    138: Result := 'tkDefault';
-   140: Result := 'tkMax';
-   141: Result := 'tkNotNull';
-   142: Result := 'tkZeroFill';
-   143: Result := 'tkUnsigned';
-   144: Result := 'tkMin';
-   149: Result := 'tkPlus';
-   152: Result := 'tkLessThanOrEqual';
-   153: Result := 'tkGreaterThanOrEqual';
-   155: Result := 'tkCast';
-   156: Result := 'tkFloat';
-   160: Result := 'tkComment';
-   161: Result := 'tkConcat';
-   162: Result := 'tkSubstr';
+   TTokenTypes.tkMax: Result := 'tkMax';
+   TTokenTypes.tkNotNull : Result := 'tkNotNull';
+   TTokenTypes.tkZeroFill : Result := 'tkZeroFill';
+   TTokenTypes.tkUnsigned : Result := 'tkUnsigned';
+   TTokenTypes.tkMin : Result := 'tkMin';
+   TTokenTypes.tkPlus: Result := 'tkPlus';
+   TTokenTypes.tkLessThanOrEqual : Result := 'tkLessThanOrEqual';
+   TTokenTypes.tkGreaterThanOrEqual : Result := 'tkGreaterThanOrEqual';
+   TTokenTypes.tkCast : Result := 'tkCast';
+   TTokenTypes.tkFloat : Result := 'tkFloat';
+   TTokenTypes.tkComment : Result := 'tkComment';
+   TTokenTypes.tkConcat : Result := 'tkConcat';
+   TTokenTypes.tkSubstr : Result := 'tkSubstr';
   end;
 
 end;
@@ -567,6 +589,7 @@ end;
 
 destructor TSQLParser.Destroy;
 begin
+  inherited;
   FreeAndNil(FTokens);
 end;
 
@@ -719,12 +742,12 @@ begin
       else if ((FTokens[i].TokenSQL = 134) and (FTokens[i + 1].TokenSQL = 136)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 132;  // LOCK TABLES
+        FTokens[i].TokenSQL := TTokenTypes.tkLockTables;  // LOCK TABLES
       end
       else if ((FTokens[i].TokenSQL = 135) and (FTokens[i + 1].TokenSQL = 136)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 133;  // UNLOCK TABLES
+        FTokens[i].TokenSQL := TTokenTypes.tkUnlockTables;  // UNLOCK TABLES
       end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = 65)) then
       begin
