@@ -149,6 +149,7 @@ type
     tkTables = 136;
     tkDouble = 137;//: Result := 'tkDouble';
     tkDefault = 138; //: Result := 'tkDefault';
+    tkTemporary = 139;
     tkMax = 140; //: Result := 'tkMax';
     tkNotNull = 141; //: Result := 'tkNotNull';
     tkZeroFill = 142;// : Result := 'tkZeroFill';
@@ -165,6 +166,7 @@ type
     tkComment = 160; //: Result := 'tkComment';
     tkConcat = 161; //: Result := 'tkConcat';
     tkSubstr = 162; //: Result := 'tkSubstr';
+    tkCreateTemporaryTable = 164;
 
 
     tkUnknownToken = -199;
@@ -273,6 +275,7 @@ begin
     TTokenTypes.tkDropDatabase: Result := 'tkDropDatabase';
     TTokenTypes.tkDropView: Result := 'tkDropView';
     TTokenTypes.tkDropTable: Result := 'tkDropTable';
+    TTokenTypes.tkDropIndex: Result := 'tkDropIndex';
     TTokenTypes.tkTruncateTable: Result := 'tkTruncateTable';
     TTokenTypes.tkAlterTable: Result := 'tkAlterTable';
     TTokenTypes.tkCreateIndex: Result := 'tkCreateIndex';
@@ -610,6 +613,11 @@ end;
 
 procedure TTokenInfo.SetTokenSQL(const Value: Integer);
 begin
+  if (TokenSQL = TTokenTypes.tkConstantNumber) or
+     (TokenSQL = TTokenTypes.tkConstantString) then
+  begin
+    Exit;
+  end;
   if (Token = '=') and (value <> TTokenTypes.tkEquals) then
   begin
 
@@ -750,6 +758,12 @@ begin
         FTokens.Join(i);  // RIGHT OUTER JOIN
         FTokens[i].TokenSQL := TTokenTypes.tkRightOuterJoin;
       end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkTemporary) and (FTokens[i + 2].TokenSQL = TTokenTypes.tkTable)) then
+      begin
+        FTokens.Join(i);
+        FTokens.Join(i);  // CREATE TEMPORARY TABLE
+        FTokens[i].TokenSQL := TTokenTypes.tkCreateTemporaryTable;
+      end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkInner) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkJoin)) then
       begin
         FTokens.Join(i);  // INNER JOIN
@@ -855,7 +869,7 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkCreateIndex;  // CREATE INDEX
       end
-      else if ((FTokens[i].TokenSQL = TTokenTypes.tkDrop) and (FTokens[i + 1].TokenSQL = 51)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkDrop) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkIndex)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkDropIndex;  // DROP INDEX
@@ -927,14 +941,14 @@ begin
          (FTokens[i - 1].TokenSQL = TTokenTypes.tkDotSeperator) then
       begin
         FTokens[i - 2].TokenSQL := TTokenTypes.tkSchemaName;
-        FTokens[i - 0].TokenSQL := TTokenTypes.tkTableName;
+        FTokens[i].TokenSQL := TTokenTypes.tkTableName;
       end;
 
       if (i - 3 >= 0) and (FTokens[i - 3].TokenSQL = TTokenTypes.tkDropIndex) and {'DROP INDEX3 table2.1indexname0'}
          (FTokens[i - 1].TokenSQL = TTokenTypes.tkDotSeperator) then
       begin
-        FTokens[i - 2].TokenSQL := TTokenTypes.tkTableName;
-        FTokens[i - 0].TokenSQL := TTokenTypes.tkIndexName;
+        FTokens[i - 2].TokenSQL := TTokenTypes.tkSchemaName;
+        FTokens[i].TokenSQL := TTokenTypes.tkIndexName;
       end;
 
 
@@ -1041,6 +1055,31 @@ begin
         if (FTokens[i - 2].TokenSQL = TTokenTypes.tkLockTables) and (FTokens[i].TokenSQL = 146) then
         begin
           FTokens[i-1].TokenSQL := TTokenTypes.tkFieldName;
+        end;
+      end;
+
+      if i - 1 >= 0 then // DROP USER1 ????0
+      begin
+        if (FTokens[i - 1].TokenSQL = TTokenTypes.tkDropUser) then
+        begin
+          FTokens[i].TokenSQL := TTokenTypes.tkUsername;
+        end;
+      end;
+
+      if i - 2 >= 0 then // DROP INDEX2 ????1 ;0
+      begin
+        if (FTokens[i - 2].TokenSQL = TTokenTypes.tkDropIndex) and (FTokens[i].TokenSQL = TTokenTypes.tkEndStatement) then
+        begin
+          FTokens[i - 1].TokenSQL := TTokenTypes.tkIndexName;
+        end;
+      end;
+
+      if i - 4 >= 0 then // DROP INDEX3 ????2.????1 ;0
+      begin
+        if (FTokens[i - 4].TokenSQL = TTokenTypes.tkDropIndex) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkDotSeperator) and (FTokens[i].TokenSQL = TTokenTypes.tkEndStatement) then
+        begin
+          FTokens[i - 3].TokenSQL := TTokenTypes.tkSchemaName;
+          FTokens[i - 1].TokenSQL := TTokenTypes.tkIndexName;
         end;
       end;
 
@@ -1396,6 +1435,15 @@ begin
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
       end;
+
+      if i - 1 >= 0 then
+      begin
+        if (FTokens[i - 1].tokenSQL = TTokenTypes.tkCreateTemporaryTable ) and (FTokens[i].tokenSQL = TTokenTypes.tkUnknownToken) then
+        begin //  CREATE TEMPORARY TABLE 1 ???0
+          FTokens[i].tokenSQL := TTokenTypes.tkTableName;
+        end;
+      end;
+
 
       if i - 2 >= 0 then
       begin
