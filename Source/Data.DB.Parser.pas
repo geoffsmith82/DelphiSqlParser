@@ -37,6 +37,8 @@ type
     tkOn = 21;
     tkTableName = 22;
     tkFieldName = 24;
+    tkDatabaseName = 66;
+    tkViewName = 67;
     tkUnknownToken = -199;
   end;
 
@@ -218,19 +220,19 @@ begin
   else if Token = '*' then
     Result := 14
   else if Token = '=' then
-    Result := 15
+    Result := TTokenTypes.tkEquals
   else if Token = ';' then
     Result := 16
   else if Token = '(' then
-    Result := 17
+    Result := TTokenTypes.tkLeftBracket
   else if Token = ')' then
-    Result := 18
+    Result := TTokenTypes.tkRightBracket
   else if Token = '.' then
     Result := TTokenTypes.tkDotSeperator
   else if Token = 'AS' then
     Result := 20
   else if Token = 'ON' then
-    Result := 21
+    Result := TTokenTypes.tkOn
   // Result := 22 // table
   // Result := 23 // tableref
   // Result := 24 // fieldname
@@ -311,7 +313,7 @@ begin
   else if Token = 'DATABASE' then
     Result := 65
   // Result := 66 database name
-  // Result := 67 view name
+  // Result := tkViewName view name
   // Result := 68 some db object - table, view, etc
   // Result := 69 some db operation INSERT, DELETE, UPDATE, SELECT
   // Result := 70 user
@@ -477,7 +479,7 @@ end;
 
 procedure TTokenInfo.SetTokenSQL(const Value: Integer);
 begin
-  if (Token = '=') and (value <> 15) then
+  if (Token = '=') and (value <> TTokenTypes.tkEquals) then
   begin
 
   end
@@ -524,7 +526,7 @@ begin
   begin
     if i - 2 >= 0 then
     begin
-      if (FTokens[i - 2].TokenSQL in [71,72]) and (FTokens[i - 1].TokenSQL in [15, 94, 95, 124, 152, 153]) and (FTokens[i].TokenSQL in [71,72]) then
+      if (FTokens[i - 2].TokenSQL in [71,72]) and (FTokens[i - 1].TokenSQL in [TTokenTypes.tkEquals, 94, 95, 124, 152, 153]) and (FTokens[i].TokenSQL in [71,72]) then
       begin
         Result := True;
       end;
@@ -742,12 +744,12 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 124;  // <>
       end
-      else if ((FTokens[i].TokenSQL = 94) and (FTokens[i + 1].TokenSQL = 15)) then
+      else if ((FTokens[i].TokenSQL = 94) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkEquals)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 152;  // <=
       end
-      else if ((FTokens[i].TokenSQL = 95) and (FTokens[i + 1].TokenSQL = 15)) then
+      else if ((FTokens[i].TokenSQL = 95) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkEquals)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := 153;  // >=
@@ -820,25 +822,25 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 86) and (FTokens[i - 2].TokenSQL = 17) {'SUM('} then
+        if (FTokens[i - 1].TokenSQL = 86) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'SUM('} then
           FTokens[i].TokenSQL := 86;
       end;
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 87) and (FTokens[i - 2].TokenSQL = 17) {'COUNT('} then
+        if (FTokens[i - 1].TokenSQL = 87) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'COUNT('} then
           FTokens[i].TokenSQL := 87;
       end;
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 88) and (FTokens[i - 2].TokenSQL = 17) {'AVG('} then
+        if (FTokens[i - 1].TokenSQL = 88) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'AVG('} then
           FTokens[i].TokenSQL := 88;
       end;
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 89) and (FTokens[i - 2].TokenSQL = 17) {'EXISTS('} then
+        if (FTokens[i - 1].TokenSQL = 89) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'EXISTS('} then
           FTokens[i].TokenSQL := 89;
       end;
 
@@ -965,7 +967,7 @@ begin
       begin
         if (FTokens[i - 1].tokenSQL = 73) then
         begin
-          FTokens[i].TokenSQL := 66;
+          FTokens[i].TokenSQL := TTokenTypes.tkDatabaseName;
         end
       end;
 
@@ -1110,11 +1112,11 @@ begin
 
       if i - 2 >= 0 then  // =
       begin
-        if (FTokens[i - 2].tokenSQL = 121) and (FTokens[i].tokenSQL = 21) then
+        if (FTokens[i - 2].tokenSQL = 121) and (FTokens[i].tokenSQL = TTokenTypes.tkOn) then
         begin
           FTokens[i - 1].TokenSQL := 130;
         end;
-        if (FTokens[i - 2].tokenSQL = 21) and (FTokens[i].tokenSQL = 17) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkOn) and (FTokens[i].tokenSQL = TTokenTypes.tkLeftBracket) then
         begin
           FTokens[i - 1].TokenSQL := TTokenTypes.tkTableName;
         end;
@@ -1169,7 +1171,7 @@ begin
       if i - 5 >= 0 then  // GRANT5 operation4 ON3 object2 TO1 user0
       begin
         if (FTokens[i - 5].tokenSQL = 57) and
-           (FTokens[i - 3].tokenSQL = 21) and
+           (FTokens[i - 3].tokenSQL = TTokenTypes.tkOn) and
            (FTokens[i - 1].tokenSQL = 58) and
            (MatchStr(FTokens[i - 4].token, ['SELECT', 'INSERT', 'DELETE']) = TRUE)
         then
@@ -1182,7 +1184,7 @@ begin
 
      if i - 3 >= 0 then  // ON3 object2 TO1 user0
       begin
-        if (FTokens[i - 3].tokenSQL = 21) and
+        if (FTokens[i - 3].tokenSQL = TTokenTypes.tkOn) and
            (FTokens[i - 1].tokenSQL = 58)
         then
         begin
@@ -1195,19 +1197,19 @@ begin
       begin
         if (FTokens[i - 1].tokenSQL = 85) then
         begin
-          FTokens[i].TokenSQL := 66; // CREATE DATABASE
+          FTokens[i].TokenSQL := TTokenTypes.tkDatabaseName; // CREATE DATABASE
         end
         else if (FTokens[i - 1].tokenSQL = 112) then
         begin
-          FTokens[i].TokenSQL := 66; // DROP DATABASE
+          FTokens[i].TokenSQL := TTokenTypes.tkDatabaseName; // DROP DATABASE
         end
         else if (FTokens[i - 1].tokenSQL = 109) then
         begin
-          FTokens[i].TokenSQL := 67; // CREATE VIEW
+          FTokens[i].TokenSQL := TTokenTypes.tkViewName; // CREATE VIEW
         end
         else if (FTokens[i - 1].tokenSQL = 113) then
         begin
-          FTokens[i].TokenSQL := 67; // DROP VIEW
+          FTokens[i].TokenSQL := TTokenTypes.tkViewName; // DROP VIEW
         end
         else if (FTokens[i - 1].tokenSQL = 110) then
         begin
@@ -1249,7 +1251,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 15 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 16) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkEquals ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 16) then
         begin //  ,2 ????1 FROM0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1297,7 +1299,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 17 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 107) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkLeftBracket ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 107) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1337,7 +1339,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkFieldName ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 15) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkFieldName ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkEquals) then
         begin //  NOT 2 ????1 =0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1345,7 +1347,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 17 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 93) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkLeftBracket ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 93) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1353,7 +1355,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 15) then
+        if (FTokens[i - 2].tokenSQL = 93 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkEquals) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1361,7 +1363,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 35 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 17) then
+        if (FTokens[i - 2].tokenSQL = 35 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkLeftBracket) then
         begin //  TABLE 2 ????1 (0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkTableName;
         end;
@@ -1377,7 +1379,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkUnknownToken ) and (FTokens[i - 1].tokenSQL = 17) and (FTokens[i-0].tokenSQL = 18) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkUnknownToken ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkLeftBracket) and (FTokens[i-0].tokenSQL = TTokenTypes.tkRightBracket) then
         begin //  TABLE 2 ????1 (0
           FTokens[i - 2].tokenSQL := 147;
         end;
@@ -1393,7 +1395,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 20 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 21) then
+        if (FTokens[i - 2].tokenSQL = 20 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkOn) then
         begin //  AS 2 ????1 ON0
           FTokens[i - 1].tokenSQL := 23;
         end;
@@ -1401,7 +1403,7 @@ begin
 
       if i - 3 >= 0 then
       begin
-        if (FTokens[i - 3].tokenSQL = 17 ) and (FTokens[i - 2].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-1].tokenSQL = TTokenTypes.tkDotSeperator) and (FTokens[i].tokenSQL = TTokenTypes.tkUnknownToken) then
+        if (FTokens[i - 3].tokenSQL = TTokenTypes.tkLeftBracket ) and (FTokens[i - 2].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-1].tokenSQL = TTokenTypes.tkDotSeperator) and (FTokens[i].tokenSQL = TTokenTypes.tkUnknownToken) then
         begin //  AS 2 ????1 ON0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1409,7 +1411,7 @@ begin
 
       if i - 3 >= 0 then
       begin
-        if (FTokens[i - 3].tokenSQL = 18 ) and (FTokens[i - 2].tokenSQL = 20) and (FTokens[i-1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = 17) then
+        if (FTokens[i - 3].tokenSQL = TTokenTypes.tkRightBracket ) and (FTokens[i - 2].tokenSQL = 20) and (FTokens[i-1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = TTokenTypes.tkLeftBracket) then
         begin //  AS 2 ????1 ON0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1417,7 +1419,7 @@ begin
 
       if i - 3 >= 0 then
       begin
-        if (FTokens[i - 3].tokenSQL = 18 ) and (FTokens[i - 2].tokenSQL = 20) and (FTokens[i-1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = 17) then
+        if (FTokens[i - 3].tokenSQL = TTokenTypes.tkRightBracket ) and (FTokens[i - 2].tokenSQL = 20) and (FTokens[i-1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = TTokenTypes.tkLeftBracket) then
         begin //  AS 2 ????1 ON0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1426,7 +1428,7 @@ begin
 
 //      if i - 3 >= 0 then
 //      begin
-//        if (FTokens[i - 3].tokenSQL <> TTokenTypes.tkDotSeperator ) and (FTokens[i - 2].Token = '[') and (FTokens[i-1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = 17) then
+//        if (FTokens[i - 3].tokenSQL <> TTokenTypes.tkDotSeperator ) and (FTokens[i - 2].Token = '[') and (FTokens[i-1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = TTokenTypes.tkLeftBracket) then
 //        begin //  AS 2 ????1 ON0
 //          FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
 //        end;
