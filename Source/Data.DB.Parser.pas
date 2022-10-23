@@ -38,11 +38,16 @@ type
     tkTableName = 22;
     tkFieldName = 24;
     tkUpdate = 31;
+    tkSet = 32;
     tkTable = 35;
+    tkDISTINCT = 42;
     tkAdd = 48;
     tkDatabaseName = 66;
     tkViewName = 67;
     tkUsername = 70;
+    tkUse = 73;
+    tkGroupBy = 76;
+    tkOrderBy = 84;
     tkCreateDatabase = 85;
     tkComma = 93;
     tkVarchar = 106;
@@ -84,9 +89,9 @@ uses
 function TokenIdToTokenString(inTokenId:Integer): string;
 begin
   case inTokenId of
-    0 : Result := 'tkSELECT';
-    1 : Result := 'tkFROM';
-    2 : Result := 'tkWHERE';
+    TTokenTypes.tkSELECT : Result := 'tkSELECT';
+    TTokenTypes.tkFROM : Result := 'tkFROM';
+    TTokenTypes.tkWHERE : Result := 'tkWHERE';
     8 : Result := 'tkJoin';
     9 : Result := 'tkInto';
    10 : Result := 'tkOrder';
@@ -102,7 +107,7 @@ begin
    24 : Result := 'tkFieldName';
    25 : Result := 'tkFieldRefName';
    31 : Result := 'tkUpdate';
-   32 : Result := 'tkSet';
+   TTokenTypes.tkSet : Result := 'tkSet';
    TTokenTypes.tkTable : Result := 'tkTable';
    36 : Result := 'tkBetween';
    37 : Result := 'tkCase';
@@ -110,7 +115,7 @@ begin
    39 : Result := 'tkHaving';
    40 : Result := 'tkLIKE';
    41 : Result := 'tkLimit';
-   42 : Result := 'tkDISTINCT';
+   TTokenTypes.tkDISTINCT : Result := 'tkDISTINCT';
    44 : Result := 'tkTop';
    TTokenTypes.tkAdd : Result := 'tkAdd';
    52 : Result := 'tkValues';
@@ -124,13 +129,13 @@ begin
    70 : Result := 'tkUsername';
    71 : Result := 'tkConstantNumber';
    72 : Result := 'tkConstantString';
-   73 : Result := 'tkUse';
-   76 : Result := 'tkGroupBy';
+   TTokenTypes.tkUse : Result := 'tkUse';
+   TTokenTypes.tkGroupBy : Result := 'tkGroupBy';
    77 : Result := 'tkSchemaName';
    80 : Result := 'tkInnerJoin';
    81 : Result := 'tkLeftJoin';
    82 : Result := 'tkRightJoin';
-   84 : Result := 'tkOrderBy';
+   TTokenTypes.tkOrderBy : Result := 'tkOrderBy';
    TTokenTypes.tkCreateDatabase : Result := 'tkCreateDatabase';
    86 : Result := 'tkSum';
    87 : Result := 'tkCount';
@@ -254,7 +259,7 @@ begin
   else if Token = 'UPDATE' then
     Result := TTokenTypes.tkUpdate
   else if Token = 'SET' then
-    Result := 32
+    Result := TTokenTypes.tkSet
   else if Token = 'ALTER' then
     Result := 33
   else if Token = 'CREATE' then
@@ -274,7 +279,7 @@ begin
   else if Token = 'LIMIT' then
     Result := 41
   else if Token = 'DISTINCT' then
-    Result := 42
+    Result := TTokenTypes.tkDISTINCT
   else if Token = 'WITH' then
     Result := 43
   else if Token = 'TOP' then
@@ -327,11 +332,11 @@ begin
   // Result := 69 some db operation INSERT, DELETE, UPDATE, SELECT
   // Result := tkUsername user
   else if Token = 'USE' then
-    Result := 73
+    Result := TTokenTypes.tkUse
   // Result := 74 constraint
   else if Token = 'USER' then
     Result := 75
-  // Result := 76 GROUP BY
+  // Result := TTokenTypes.tkGroupBy GROUP BY
   // Result := 77 schema name
   // Result := 78 DROP TABLE
   // Result := 79 RIGHT OUTER JOIN
@@ -550,7 +555,7 @@ begin
   Result := False;
   for i := 0 to FTokens.Count - 1 do
   begin
-    if FTokens[i].TokenSQL in [8,TTokenTypes.tkInto,29,31,32,33,34,38,45,TTokenTypes.tkAdd, 51,57,60, 85, 109,110,111,112,113,114,115,116, 119, TTokenTypes.tkCreateIndex, 122, 123,127,128,129,154] then
+    if FTokens[i].TokenSQL in [8,TTokenTypes.tkInto,29,31,TTokenTypes.tkSet,33,34,38,45,TTokenTypes.tkAdd, 51,57,60, 85, 109,110,111,112,113,114,115,116, 119, TTokenTypes.tkCreateIndex, 122, 123,127,128,129,154] then
     begin
       Result := True;
       Exit;
@@ -650,12 +655,12 @@ begin
       else if ((FTokens[i].TokenSQL = 11) and (FTokens[i + 1].TokenSQL = 12)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 76;  // GROUP BY
+        FTokens[i].TokenSQL := TTokenTypes.tkGroupBy;  // GROUP BY
       end
       else if ((FTokens[i].TokenSQL = 10) and (FTokens[i + 1].TokenSQL = 12)) then
       begin
         FTokens.Join(i);
-        FTokens[i].TokenSQL := 84;  // ORDER BY
+        FTokens[i].TokenSQL := TTokenTypes.tkOrderBy;  // ORDER BY
       end
       else if ((FTokens[i].TokenSQL = 134) and (FTokens[i + 1].TokenSQL = 136)) then
       begin
@@ -868,7 +873,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkUpdate) and (FTokens[i].tokenSQL = 32) then   // UPDATE ??? SET
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkUpdate) and (FTokens[i].tokenSQL = TTokenTypes.tkSet) then   // UPDATE ??? SET
           FTokens[i - 1].TokenSQL := TTokenTypes.tkTableName;
       end;
 
@@ -974,7 +979,7 @@ begin
 
       if i - 1 >= 0 then  // USE dbname
       begin
-        if (FTokens[i - 1].tokenSQL = 73) then
+        if (FTokens[i - 1].tokenSQL = TTokenTypes.tkUse) then
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkDatabaseName;
         end
@@ -991,7 +996,7 @@ begin
 
       if i - 5 >= 0 then
       begin
-        if (FTokens[i - 5].tokenSQL = 0 ) and (FTokens[i - 3].tokenSQL = TTokenTypes.tkDotSeperator)
+        if (FTokens[i - 5].tokenSQL = TTokenTypes.tkSELECT ) and (FTokens[i - 3].tokenSQL = TTokenTypes.tkDotSeperator)
            and (FTokens[i - 1].tokenSQL = TTokenTypes.tkAS) then
         begin  // SELECT5 ????4.3?????2 AS1 ?????0
           FTokens[i - 4].tokenSQL := TTokenTypes.tkTableName;
@@ -1009,16 +1014,16 @@ begin
         end
       end;
 
-      if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = TTokenTypes.tkDotSeperator) then
+      if (FTokens[i - 1].tokenSQL = TTokenTypes.tkSELECT ) and (FTokens[i + 1].tokenSQL = TTokenTypes.tkDotSeperator) then
       begin  // SELECT ????.????? ,
         FTokens[i].tokenSQL := TTokenTypes.tkTableName;
         FTokens[i + 2].tokenSQL := TTokenTypes.tkFieldName;
       end
-      else if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = TTokenTypes.tkComma) then
+      else if (FTokens[i - 1].tokenSQL = TTokenTypes.tkSELECT ) and (FTokens[i + 1].tokenSQL = TTokenTypes.tkComma) then
       begin // SELECT ???? ,
         FTokens[i].tokenSQL := TTokenTypes.tkFieldName;
       end
-      else if (FTokens[i - 1].tokenSQL = 0 ) and (FTokens[i + 1].tokenSQL = 1) then
+      else if (FTokens[i - 1].tokenSQL = TTokenTypes.tkSELECT ) and (FTokens[i + 1].tokenSQL = 1) then
       begin // SELECT ???? FROM
         if FTokens[i].Token = '*' then
           FTokens[i].tokenSQL := TTokenTypes.tkAsterisk
@@ -1044,12 +1049,12 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 2 ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkWHERE ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
         begin  // WHERE ????.?????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 1].tokenSQL := TTokenTypes.tkFieldName;
         end
-        else if (FTokens[i - 2].tokenSQL = 2 ) then
+        else if (FTokens[i - 2].tokenSQL = TTokenTypes.tkWHERE ) then
         begin // WHERE ????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1057,12 +1062,12 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if ( (FTokens[i - 2].tokenSQL = 42 ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = 84 ) ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
+        if ( (FTokens[i - 2].tokenSQL = TTokenTypes.tkDISTINCT ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = TTokenTypes.tkOrderBy ) ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
         begin  // ORDER BY ????.?????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 1].tokenSQL := TTokenTypes.tkFieldName;
         end
-        else if ( (FTokens[i - 2].tokenSQL = 42 ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = 84 ) ) then
+        else if ( (FTokens[i - 2].tokenSQL = TTokenTypes.tkDISTINCT ) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = TTokenTypes.tkOrderBy ) ) then
         begin // ORDER BY ????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1070,12 +1075,12 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 76 ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkGroupBy ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
         begin  // GROUP BY ????.?????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 1].tokenSQL := TTokenTypes.tkFieldName;
         end
-        else if (FTokens[i - 2].tokenSQL = 76 ) then
+        else if (FTokens[i - 2].tokenSQL = TTokenTypes.tkGroupBy ) then
         begin // GROUP BY ????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1083,7 +1088,7 @@ begin
 
       if i - 3 >= 0 then
       begin
-        if (FTokens[i - 3].tokenSQL = 84 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkDotSeperator) then
+        if (FTokens[i - 3].tokenSQL = TTokenTypes.tkOrderBy ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkDotSeperator) then
         begin  // ORDER BY3 ????2.1?????0
           FTokens[i - 2].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i].tokenSQL := TTokenTypes.tkFieldName;
@@ -1091,7 +1096,7 @@ begin
       end;
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].tokenSQL = 84 ) then
+        if (FTokens[i - 1].tokenSQL = TTokenTypes.tkOrderBy ) then
         begin // ORDER BY ????
           FTokens[i].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1099,12 +1104,12 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 32 ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkSet ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
         begin  // SET ????.?????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 1].tokenSQL := TTokenTypes.tkFieldName;
         end
-        else if (FTokens[i - 2].tokenSQL = 32 ) then
+        else if (FTokens[i - 2].tokenSQL = TTokenTypes.tkSet ) then
         begin // SET ????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1268,7 +1273,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = 0 ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkAS) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkSELECT ) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = TTokenTypes.tkAS) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
