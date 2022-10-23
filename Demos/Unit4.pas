@@ -34,6 +34,12 @@ uses
   , FireDAC.DApt.Intf
   , FireDAC.DApt
   , FireDAC.Comp.DataSet
+  , FireDAC.Phys.FB
+  , FireDAC.Phys.FBDef
+  , FireDAC.Phys.MySQL
+  , FireDAC.Phys.MySQLDef
+  , FireDAC.Phys.MSSQL
+  , FireDAC.Phys.MSSQLDef
   , Data.DB.Parser
   ;
 
@@ -43,7 +49,10 @@ type
     Memo2: TMemo;
     Button1: TButton;
     Button2: TButton;
-    FDConnection1: TFDConnection;
+    AccessConnection: TFDConnection;
+    FirebirdConnection: TFDConnection;
+    MySqlConnection: TFDConnection;
+    MSSQLConnection: TFDConnection;
     tblTestSQLStatements: TFDTable;
     dsTestSQLStatements: TDataSource;
     DBGrid1: TDBGrid;
@@ -92,8 +101,8 @@ begin
   value := TSQLParser.Create;
   filename := ExtractFilePath(ParamStr(0));
   filename := TPath.Combine(filename, '..\..\..\Source\SQLParserDB.mdb');
-  FDConnection1.Params.Database := filename;
-  FDConnection1.Connected := True;
+  AccessConnection.Params.Database := filename;
+  AccessConnection.Connected := True;
   tblTestSQLStatements.Active := True;
   tblTestSQLStatementTokens.Active := True;
   tblTestSQLStatements.AfterScroll := tblTestSQLStatementsAfterScroll;

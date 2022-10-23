@@ -25,7 +25,8 @@ object Form4: TForm4
     Lines.Strings = (
       
         'SELECT Year(t1.date), * FROM t1 AS table1 INNER JOIN table2 ON t' +
-        'able1.f1 = table2.f2 WHERE (table1.id = 12);')
+        'able1.f1 = table2.f2 WHERE (table1.id = '
+      '12);')
     TabOrder = 0
   end
   object Memo2: TMemo
@@ -156,7 +157,7 @@ object Form4: TForm4
     TabOrder = 6
     OnClick = Button3Click
   end
-  object FDConnection1: TFDConnection
+  object AccessConnection: TFDConnection
     Params.Strings = (
       'Database=D:\Programming\DelphiSQLParser\Source\SQLParserDB.mdb'
       'DriverID=MSAcc')
@@ -166,7 +167,7 @@ object Form4: TForm4
   end
   object tblTestSQLStatements: TFDTable
     IndexFieldNames = 'ID'
-    Connection = FDConnection1
+    Connection = AccessConnection
     TableName = 'TestSQLStatements'
     Left = 120
     Top = 200
@@ -197,7 +198,7 @@ object Form4: TForm4
     IndexName = 'StatementID'
     MasterSource = dsTestSQLStatements
     MasterFields = 'ID'
-    Connection = FDConnection1
+    Connection = AccessConnection
     TableName = 'TestSQLStatementsTokens'
     Left = 600
     Top = 220
@@ -234,5 +235,28 @@ object Form4: TForm4
     DataSet = tblTestSQLStatementTokens
     Left = 736
     Top = 80
+  end
+  object FirebirdConnection: TFDConnection
+    Params.Strings = (
+      'DriverID=FB'
+      'User_Name=sysdba'
+      'Password=masterkey')
+    LoginPrompt = False
+    Left = 1552
+    Top = 600
+  end
+  object MySqlConnection: TFDConnection
+    Params.Strings = (
+      'DriverID=MySQL')
+    LoginPrompt = False
+    Left = 1552
+    Top = 760
+  end
+  object MSSQLConnection: TFDConnection
+    Params.Strings = (
+      'DriverID=MSSQL')
+    LoginPrompt = False
+    Left = 1572
+    Top = 920
   end
 end
