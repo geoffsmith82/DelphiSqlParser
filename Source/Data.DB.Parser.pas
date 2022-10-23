@@ -81,8 +81,10 @@ type
     tkReplace = 61;
     tkTrigger = 62;
     tkCommit = 63;
+    tkDatabase = 65;
     tkDatabaseName = 66;
     tkViewName = 67;
+    tkDBOperation = 69;
     tkUsername = 70;
     tkUse = 73;
     tkUser = 75;
@@ -437,11 +439,11 @@ begin
   else if Token = 'ROLLBACK' then
     Result := 64
   else if Token = 'DATABASE' then
-    Result := 65
+    Result := TTokenTypes.tkDatabase
   // Result := 66 database name
   // Result := tkViewName view name
   // Result := 68 some db object - table, view, etc
-  // Result := 69 some db operation INSERT, DELETE, UPDATE, SELECT
+  // Result := TTokenTypes.tkDBOperation some db operation INSERT, DELETE, UPDATE, SELECT
   // Result := tkUsername user
   else if Token = 'USE' then
     Result := TTokenTypes.tkUse
@@ -785,12 +787,12 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkUnlockTables;  // UNLOCK TABLES
       end
-      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = 65)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkDatabase)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkCreateDatabase;  // CREATE DATABASE
       end
-      else if ((FTokens[i].TokenSQL = TTokenTypes.tkDrop) and (FTokens[i + 1].TokenSQL = 65)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkDrop) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkDatabase)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkDropDatabase;  // DROP DATABASE
@@ -886,7 +888,7 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkAlterColumn;  // ALTER COLUMN
       end
-      else if ((FTokens[i].TokenSQL = TTokenTypes.tkBackup) and (FTokens[i + 1].TokenSQL = 65)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkBackup) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkDatabase)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkBackupDatabase;  // BACKUP DATABASE
@@ -1033,7 +1035,7 @@ begin
 
       if i - 2 >= 0 then // LOCK TABLES2 ????1 READ0
       begin
-        if (FTokens[i - 2].TokenSQL = 132) and (FTokens[i].TokenSQL = 146) then
+        if (FTokens[i - 2].TokenSQL = TTokenTypes.tkLockTables) and (FTokens[i].TokenSQL = 146) then
         begin
           FTokens[i-1].TokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1241,7 +1243,7 @@ begin
       begin
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkCreateIndex) and (FTokens[i].tokenSQL = TTokenTypes.tkOn) then
         begin
-          FTokens[i - 1].TokenSQL := 130;
+          FTokens[i - 1].TokenSQL := TTokenTypes.tkIndexName;
         end;
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkOn) and (FTokens[i].tokenSQL = TTokenTypes.tkLeftBracket) then
         begin
@@ -1276,7 +1278,7 @@ begin
       begin
         if (FTokens[i - 1].TokenSQL = TTokenTypes.tkDropConstraint) then
         begin
-          FTokens[i].TokenSQL := 131;
+          FTokens[i].TokenSQL := TTokenTypes.tkConstraintName;
         end
       end;
       if i - 1 >= 0 then  // INSERT INTO ????
@@ -1303,7 +1305,7 @@ begin
            (MatchStr(FTokens[i - 4].token, ['SELECT', 'INSERT', 'DELETE']) = TRUE)
         then
         begin
-          FTokens[i - 4].TokenSQL := 69;
+          FTokens[i - 4].TokenSQL := TTokenTypes.tkDBOperation;
           FTokens[i - 2].TokenSQL := 68;
           FTokens[i].TokenSQL := TTokenTypes.tkUsername;
         end
