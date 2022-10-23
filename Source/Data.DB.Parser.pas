@@ -123,6 +123,9 @@ type
     tkConstraintName = 131;// : Result := 'tkConstraintName';
     tkLockTables = 132; //: Result := 'tkLockTables';
     tkUnlockTables = 133; //: Result := 'tkUnlockTables';
+    tkLock = 134;
+    tkUnLock = 135;
+    tkTables = 136;
     tkDouble = 137;//: Result := 'tkDouble';
     tkDefault = 138; //: Result := 'tkDefault';
     tkMax = 140; //: Result := 'tkMax';
@@ -377,15 +380,15 @@ begin
   else if Token = 'DROP' then
     Result := TTokenTypes.tkDrop
   else if Token = 'TRUNCATE' then
-    Result := 46
+    Result := TTokenTypes.tkTRUNCATE
   else if Token = 'COLUMN' then
-    Result := 47
+    Result := TTokenTypes.tkCOLUMN
   else if Token = 'ADD' then
     Result := TTokenTypes.tkAdd
   else if Token = 'UNIQUE' then
-    Result := 49
+    Result := TTokenTypes.tkUnique
   else if Token = 'CONSTRAINT' then
-    Result := 50
+    Result := TTokenTypes.tkConstraint
   else if Token = 'INDEX' then
     Result := 51
   else if Token = 'VALUES' then
@@ -510,11 +513,11 @@ begin
   // Result := 132 LOCK TABLES
   // Result := 133 UNLOCK TABLES
   else if Token = 'LOCK' then
-    Result := 134 // LOCK
+    Result := TTokenTypes.tkLock // LOCK
   else if Token = 'UNLOCK' then
-    Result := 135 // UNLOCK
+    Result := TTokenTypes.tkUnLock // UNLOCK
   else if Token = 'TABLES' then
-    Result := 136 // TABLES
+    Result := TTokenTypes.tkTables // TABLES
   else if Token = 'DOUBLE' then
     Result := 137 // DOUBLE
   else if Token = 'DEFAULT' then
@@ -547,9 +550,9 @@ begin
  // else if Token = 'ALTER COLUMN' then
  //   Result := 154 // ]
   else if Token = 'CAST' then
-    Result := 155
+    Result := TTokenTypes.tkCast
   else if Token = 'FLOAT' then
-    Result := 156
+    Result := TTokenTypes.tkFloat
   else if Token = 'CURRENT_DATE' then
     Result := 157
   else if Token = 'CURRENT_TIME' then
@@ -753,12 +756,12 @@ begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkOrderBy;  // ORDER BY
       end
-      else if ((FTokens[i].TokenSQL = 134) and (FTokens[i + 1].TokenSQL = 136)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkLock) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkTables)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkLockTables;  // LOCK TABLES
       end
-      else if ((FTokens[i].TokenSQL = 135) and (FTokens[i + 1].TokenSQL = 136)) then
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkUnLock) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkTables)) then
       begin
         FTokens.Join(i);
         FTokens[i].TokenSQL := TTokenTypes.tkUnlockTables;  // UNLOCK TABLES
