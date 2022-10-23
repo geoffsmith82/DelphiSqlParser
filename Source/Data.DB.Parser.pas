@@ -60,6 +60,7 @@ type
     tkLIKE = 40; // : Result := 'tkLIKE';
     tkLimit = 41; // : Result := 'tkLimit';
     tkDISTINCT = 42;
+    tkWith = 43;
     tkTop = 44;
     tkDrop = 45;
     tkTRUNCATE = 46; // Result := 46
@@ -78,6 +79,7 @@ type
     tkUse = 73;
     tkUser = 75;
     tkGroupBy = 76;
+    tkSchemaName = 77;
     tkRightOuterJoin = 79;
     tkInnerJoin = 80;
     tkLeftJoin = 81;
@@ -85,7 +87,19 @@ type
     tkOuterJoin = 83;
     tkOrderBy = 84;
     tkCreateDatabase = 85;
-    tkComma = 93;
+    tkSum = 86; // : Result := 'tkSum';
+    tkCount = 87; // : Result := 'tkCount';
+    tkAvg = 88; // : Result := 'tkAvg';
+    tkExists = 89;// : Result := 'tkExists';
+    tkOr = 90; // : Result := 'tkOr';
+    tkAnd = 91; // : Result := 'tkAnd';
+    tkComma = 93; // : Result := 'tkComma';
+    tkLessThan = 94; //: Result := 'tkLessThan';
+    tkGreaterThan = 95; //: Result := 'tkGreaterThan';
+    tkDivide = 96; // : Result := 'tkDivide';
+    tkUNION = 98; // : Result := 'tkUNION';
+    tkNULL = 99; // : Result := 'tkNULL';
+
     tkVarchar = 106;
     tkCreateView = 109; // Result := 109 CREATE VIEW
     tkCreateUser = 110; // Result := 110 CREATE USER
@@ -200,43 +214,43 @@ begin
    56 : Result := 'tkEnd';
    57 : Result := 'tkGrant';
    58 : Result := 'tkTo';
-   66 : Result := 'tkDatabaseName';
-   67 : Result := 'tkViewName';
-   70 : Result := 'tkUsername';
+   TTokenTypes.tkDatabaseName : Result := 'tkDatabaseName';
+   TTokenTypes.tkViewName : Result := 'tkViewName';
+   TTokenTypes.tkUsername : Result := 'tkUsername';
    71 : Result := 'tkConstantNumber';
    72 : Result := 'tkConstantString';
     TTokenTypes.tkUse : Result := 'tkUse';
     TTokenTypes.tkGroupBy : Result := 'tkGroupBy';
-   77 : Result := 'tkSchemaName';
+    TTokenTypes.tkSchemaName : Result := 'tkSchemaName';
     TTokenTypes.tkInnerJoin : Result := 'tkInnerJoin';
     TTokenTypes.tkLeftJoin : Result := 'tkLeftJoin';
     TTokenTypes.tkRightJoin : Result := 'tkRightJoin';
     TTokenTypes.tkOrderBy : Result := 'tkOrderBy';
     TTokenTypes.tkCreateDatabase : Result := 'tkCreateDatabase';
-   86 : Result := 'tkSum';
-   87 : Result := 'tkCount';
-   88 : Result := 'tkAvg';
-   89 : Result := 'tkExists';
-   90 : Result := 'tkOr';
-   91 : Result := 'tkAnd';
-   93 : Result := 'tkComma';
-   94 : Result := 'tkLessThan';
-   95 : Result := 'tkGreaterThan';
-   96 : Result := 'tkDivide';
-   98 : Result := 'tkUNION';
-   99 : Result := 'tkNULL';
-   TTokenTypes.tkVarchar : Result := 'tkVarchar';
+    TTokenTypes.tkSum : Result := 'tkSum';
+    TTokenTypes.tkCount : Result := 'tkCount';
+    TTokenTypes.tkAvg : Result := 'tkAvg';
+    TTokenTypes.tkExists : Result := 'tkExists';
+    TTokenTypes.tkOr : Result := 'tkOr';
+    TTokenTypes.tkAnd : Result := 'tkAnd';
+    TTokenTypes.tkComma : Result := 'tkComma';
+    TTokenTypes.tkLessThan : Result := 'tkLessThan';
+    TTokenTypes.tkGreaterThan : Result := 'tkGreaterThan';
+    TTokenTypes.tkDivide : Result := 'tkDivide';
+    TTokenTypes.tkUNION : Result := 'tkUNION';
+    TTokenTypes.tkNULL : Result := 'tkNULL';
+    TTokenTypes.tkVarchar : Result := 'tkVarchar';
    107: Result := 'tkInt';
    108: Result := 'tkModify';
-   109: Result := 'tkCreateView';
+   TTokenTypes.tkCreateView: Result := 'tkCreateView';
    TTokenTypes.tkDropDatabase: Result := 'tkDropDatabase';
-   113: Result := 'tkDropView';
-   114: Result := 'tkDropTable';
-   116: Result := 'tkTruncateTable';
-   119: Result := 'tkAlterTable';
-   121: Result := 'tkCreateIndex';
-   123: Result := 'tkDeleteFrom';
-   124: Result := 'tkNotEqual';
+   TTokenTypes.tkDropView: Result := 'tkDropView';
+   TTokenTypes.tkDropTable: Result := 'tkDropTable';
+   TTokenTypes.tkTruncateTable: Result := 'tkTruncateTable';
+   TTokenTypes.tkAlterTable: Result := 'tkAlterTable';
+   TTokenTypes.tkCreateIndex: Result := 'tkCreateIndex';
+   TTokenTypes.tkDeleteFrom: Result := 'tkDeleteFrom';
+   TTokenTypes.tkNotEqual: Result := 'tkNotEqual';
    TTokenTypes.tkBackupDatabase: Result := 'tkBackupDatabase';
    126: Result := 'tkToDisk';
    127: Result := 'tkInsertInto';
@@ -337,27 +351,27 @@ begin
   else if Token = 'SET' then
     Result := TTokenTypes.tkSet
   else if Token = 'ALTER' then
-    Result := 33
+    Result := TTokenTypes.tkAlter
   else if Token = 'CREATE' then
     Result := TTokenTypes.tkCreate
   else if Token = 'TABLE' then
     Result := TTokenTypes.tkTable
   else if Token = 'BETWEEN' then
-    Result := 36
+    Result := TTokenTypes.tkBetween
   else if Token = 'CASE' then
-    Result := 37
+    Result := TTokenTypes.tkCase
   else if Token = 'DELETE' then
-    Result := 38
+    Result := TTokenTypes.tkDelete
   else if Token = 'HAVING' then
-    Result := 39
+    Result := TTokenTypes.tkHaving
   else if Token = 'LIKE' then
-    Result := 40
+    Result := TTokenTypes.tkLIKE
   else if Token = 'LIMIT' then
-    Result := 41
+    Result := TTokenTypes.tkLimit
   else if Token = 'DISTINCT' then
     Result := TTokenTypes.tkDISTINCT
   else if Token = 'WITH' then
-    Result := 43
+    Result := TTokenTypes.tkWith
   else if Token = 'TOP' then
     Result := 44
   else if Token = 'DROP' then
