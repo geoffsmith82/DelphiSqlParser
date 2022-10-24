@@ -170,7 +170,13 @@ type
     tkParam = 165;
     tkAll = 166;
     tkUnionAll = 167;
+    tkPrimary = 168;
+    tkKey = 169;
+    tkPrimaryKey = 170;
+    tkDropColumn = 171;
+    tkCreateOrReplaceView = 180;
     tkUnknownToken = -199;
+
   end;
 
   TTokenBucket = class(TObjectList<TTokenInfo>)
@@ -276,6 +282,7 @@ begin
     TTokenTypes.tkInt: Result := 'tkInt';
     TTokenTypes.tkModify: Result := 'tkModify';
     TTokenTypes.tkCreateView: Result := 'tkCreateView';
+    TTokenTypes.tkCreateTable: Result := 'tkCreateTable';
     TTokenTypes.tkDropDatabase: Result := 'tkDropDatabase';
     TTokenTypes.tkDropView: Result := 'tkDropView';
     TTokenTypes.tkDropTable: Result := 'tkDropTable';
@@ -311,6 +318,11 @@ begin
     TTokenTypes.tkSubstr : Result := 'tkSubstr';
     TTokenTypes.tkParam : Result := 'tkParam';
     TTokenTypes.tkUnionAll: Result := 'tkUnionAll';
+    TTokenTypes.tkPrimary: Result := 'tkPrimary';
+    TTokenTypes.tkKey: Result := 'tkKey';
+    TTokenTypes.tkPrimaryKey: Result := 'tkPrimaryKey';
+    TTokenTypes.tkDropColumn: Result := 'tkDropColumn';
+    TTokenTypes.tkCreateOrReplaceView: Result := 'tkCreateOrReplaceView';
   end;
 
 end;
@@ -600,6 +612,10 @@ begin
     Result := 162
   else if Token = 'ALL' then
     Result := TTokenTypes.tkAll
+  else if Token = 'PRIMARY' then
+    Result := TTokenTypes.tkPrimary
+  else if Token = 'KEY' then
+    Result := TTokenTypes.tkKey
   else
     Result := TTokenTypes.tkUnknownToken; // unknown token
 end;
@@ -740,11 +756,30 @@ begin
         FTokens.Join(i);  // CREATE TEMPORARY TABLE
         FTokens[i].TokenSQL := TTokenTypes.tkCreateTemporaryTable;
       end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkOr) and (FTokens[i + 2].TokenSQL = TTokenTypes.tkReplace) and (FTokens[i + 3].TokenSQL = TTokenTypes.tkView)) then
+      begin
+        FTokens.Join(i);
+        FTokens.Join(i);
+        FTokens.Join(i);  // CREATE OR REPLACE VIEW
+        FTokens[i].TokenSQL := TTokenTypes.tkCreateOrReplaceView;
+      end
+
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkInner) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkJoin)) then
       begin
         FTokens.Join(i);  // INNER JOIN
         FTokens[i].TokenSQL := TTokenTypes.tkInnerJoin;
       end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkPrimary) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkKey)) then
+      begin
+        FTokens.Join(i);  // PRIMARY KEY
+        FTokens[i].TokenSQL := TTokenTypes.tkPrimaryKey;
+      end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkDrop) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkCOLUMN)) then
+      begin
+        FTokens.Join(i);  // DROP COLUMN
+        FTokens[i].TokenSQL := TTokenTypes.tkDropColumn;
+      end
+
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkUNION) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkAll)) then
       begin
         FTokens.Join(i);  // UNION ALL
