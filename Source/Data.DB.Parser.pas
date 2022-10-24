@@ -174,7 +174,9 @@ type
     tkKey = 169;
     tkPrimaryKey = 170;
     tkDropColumn = 171;
-    tkCreateOrReplaceView = 180;
+    tkCreateOrReplaceView = 172;
+    tkCheck = 173;
+    tkCreateUniqueIndex = 174;
     tkUnknownToken = -199;
 
   end;
@@ -323,6 +325,8 @@ begin
     TTokenTypes.tkPrimaryKey: Result := 'tkPrimaryKey';
     TTokenTypes.tkDropColumn: Result := 'tkDropColumn';
     TTokenTypes.tkCreateOrReplaceView: Result := 'tkCreateOrReplaceView';
+    TTokenTypes.tkCheck: Result := 'tkCheck';
+    TTokenTypes.tkCreateUniqueIndex: Result := 'tkCreateUniqueIndex';
   end;
 
 end;
@@ -616,6 +620,8 @@ begin
     Result := TTokenTypes.tkPrimary
   else if Token = 'KEY' then
     Result := TTokenTypes.tkKey
+  else if Token = 'CHECK' then
+    Result := TTokenTypes.tkCheck
   else
     Result := TTokenTypes.tkUnknownToken; // unknown token
 end;
@@ -763,7 +769,12 @@ begin
         FTokens.Join(i);  // CREATE OR REPLACE VIEW
         FTokens[i].TokenSQL := TTokenTypes.tkCreateOrReplaceView;
       end
-
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkCreate) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkUnique) and (FTokens[i + 2].TokenSQL = TTokenTypes.tkIndex) ) then
+      begin
+        FTokens.Join(i);
+        FTokens.Join(i);  // CREATE UNIQUE INDEX
+        FTokens[i].TokenSQL := TTokenTypes.tkCreateUniqueIndex;
+      end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkInner) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkJoin)) then
       begin
         FTokens.Join(i);  // INNER JOIN
@@ -1363,6 +1374,10 @@ begin
       if i - 2 >= 0 then  // =
       begin
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkCreateIndex) and (FTokens[i].tokenSQL = TTokenTypes.tkOn) then
+        begin
+          FTokens[i - 1].TokenSQL := TTokenTypes.tkIndexName;
+        end;
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkCreateUniqueIndex) and (FTokens[i].tokenSQL = TTokenTypes.tkOn) then
         begin
           FTokens[i - 1].TokenSQL := TTokenTypes.tkIndexName;
         end;
