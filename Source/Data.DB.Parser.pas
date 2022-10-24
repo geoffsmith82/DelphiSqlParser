@@ -711,7 +711,37 @@ begin
   Result := False;
   for i := 0 to FTokens.Count - 1 do
   begin
-    if FTokens[i].TokenSQL in [TTokenTypes.tkJoin,TTokenTypes.tkInto,29,31,TTokenTypes.tkSet,33,TTokenTypes.tkCreate,38,45,TTokenTypes.tkAdd, 51,57,60, 85, 109,110,111,TTokenTypes.tkDropDatabase,113,114,115,116, 119, TTokenTypes.tkCreateIndex, 122, 123,127,128,129,TTokenTypes.tkAlterColumn] then
+    if FTokens[i].TokenSQL in [
+                               TTokenTypes.tkJoin,
+                               TTokenTypes.tkInto,
+                               TTokenTypes.tkInsert,
+                               TTokenTypes.tkUpdate,
+                               TTokenTypes.tkSet,
+                               TTokenTypes.tkAlter,
+                               TTokenTypes.tkCreate,
+                               TTokenTypes.tkDelete,
+                               TTokenTypes.tkDrop,
+                               TTokenTypes.tkAdd,
+                               51,
+                               TTokenTypes.tkGrant,
+                               TTokenTypes.tkView,
+                               TTokenTypes.tkCreateDatabase,
+                               TTokenTypes.tkCreateView,
+                               TTokenTypes.tkCreateUser,
+                               TTokenTypes.tkCreateTable,
+                               TTokenTypes.tkDropDatabase,
+                               TTokenTypes.tkDropView,
+                               TTokenTypes.tkDropTable,
+                               TTokenTypes.tkDropUser,
+                               TTokenTypes.tkTruncateTable,
+                               TTokenTypes.tkAlterTable,
+                               TTokenTypes.tkCreateIndex,
+                               TTokenTypes.tkDropIndex,
+                               TTokenTypes.tkDeleteFrom,
+                               TTokenTypes.tkInsertInto,
+                               TTokenTypes.tkDropConstraint,
+                               TTokenTypes.tkAlterColumn
+                               ] then
     begin
       Result := True;
       Exit;
@@ -726,7 +756,22 @@ begin
   Result := False;
   for i := 0 to FTokens.Count - 1 do
   begin
-    if FTokens[i].TokenSQL in [TTokenTypes.tkInto, TTokenTypes.tkCreate, 57, 85, 109, 111, TTokenTypes.tkDropDatabase, 113, 114, 119, TTokenTypes.tkCreateIndex, 122, 128, 129, TTokenTypes.tkAlterColumn] then
+    if FTokens[i].TokenSQL in [
+                               TTokenTypes.tkInto,
+                               TTokenTypes.tkCreate,
+                               TTokenTypes.tkGrant,
+                               TTokenTypes.tkCreateDatabase,
+                               TTokenTypes.tkCreateView,
+                               TTokenTypes.tkCreateTable,
+                               TTokenTypes.tkDropDatabase,
+                               TTokenTypes.tkDropView,
+                               TTokenTypes.tkDropTable,
+                               TTokenTypes.tkAlterTable,
+                               TTokenTypes.tkCreateIndex,
+                               TTokenTypes.tkDropIndex,
+                               TTokenTypes.tkDropConstraint,
+                               TTokenTypes.tkAlterColumn
+                               ] then
     begin
       Result := True;
       Exit;
@@ -1057,14 +1102,11 @@ begin
         FTokens[i].TokenSQL := TTokenTypes.tkIndexName;
       end;
 
-
       if (i - 2 >= 0) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkInto) and {'INTO2 ????1 FROM0'}
          (FTokens[i].TokenSQL = 1) then
       begin
         FTokens[i - 1].TokenSQL := TTokenTypes.tkTableName;
       end;
-
-
 
       if i - 2 >= 0 then
       begin
@@ -1108,7 +1150,6 @@ begin
         end;
       end;
 
-
       if i - 2 >= 0 then
       begin
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkUpdate) and (FTokens[i].tokenSQL = TTokenTypes.tkSet) then   // UPDATE ??? SET
@@ -1120,7 +1161,6 @@ begin
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkBackupDatabase) and (FTokens[i].tokenSQL = TTokenTypes.tkToDisk) then
           FTokens[i - 1].TokenSQL := TTokenTypes.tkTableName;
       end;
-
 
       if i - 2 >= 0 then
       begin
@@ -1140,7 +1180,7 @@ begin
           FTokens[i + 2].TokenSQL := TTokenTypes.tkFieldName;
           FTokens[i + 4].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 6].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 2 >= 0 then  // (
@@ -1153,7 +1193,7 @@ begin
           FTokens[i + 2].TokenSQL := TTokenTypes.tkFieldName;
           FTokens[i + 4].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 6].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 2 >= 0 then // LOCK TABLES2 ????1 READ0
@@ -1194,7 +1234,7 @@ begin
           else if FTokens[i + 2].TokenType = System.Classes.toString then
             FTokens[i + 2].TokenSQL := TTokenTypes.tkConstantString;
 
-        end
+        end;
       end;
 
       if i - 2 >= 0 then  // (
@@ -1204,15 +1244,15 @@ begin
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 2].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 2 >= 0 then  // tablename MODIFY ?????
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkTableName) and (FTokens[i - 1].tokenSQL = 108) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkTableName) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkModify) then
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 4 >= 0 then  // =
@@ -1221,7 +1261,7 @@ begin
         begin
           FTokens[i -2 ].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 0].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 1 >= 0 then  // USE dbname
@@ -1229,7 +1269,7 @@ begin
         if (FTokens[i - 1].tokenSQL = TTokenTypes.tkUse) then
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkDatabaseName;
-        end
+        end;
       end;
 
       if i - 5 >= 0 then  // =
@@ -1238,7 +1278,7 @@ begin
         begin
           FTokens[i-2].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 0].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 5 >= 0 then
@@ -1249,7 +1289,7 @@ begin
           FTokens[i - 4].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i - 2].tokenSQL := TTokenTypes.tkFieldName;
           FTokens[i].tokenSQL := TTokenTypes.tkFieldRefName;
-        end
+        end;
       end;
 
       if i - 2 >= 0 then  // =
@@ -1258,7 +1298,7 @@ begin
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 2].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if (FTokens[i - 1].tokenSQL = TTokenTypes.tkSELECT) and (FTokens[i + 1].tokenSQL = TTokenTypes.tkDotSeperator) then
@@ -1339,7 +1379,7 @@ begin
         begin  // ORDER BY3 ????2.1?????0
           FTokens[i - 2].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i].tokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
       if i - 2 >= 0 then
       begin
@@ -1368,7 +1408,7 @@ begin
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 2].TokenSQL := TTokenTypes.tkFieldName;
-        end
+        end;
       end;
 
       if i - 2 >= 0 then  // =
@@ -1420,7 +1460,7 @@ begin
       begin
         if (FTokens[i - 1].token = ':') then
         begin
-          FTokens[i].TokenSQL := 26;
+          FTokens[i].TokenSQL := TTokenTypes.tkParam;
         end
       end;
 
