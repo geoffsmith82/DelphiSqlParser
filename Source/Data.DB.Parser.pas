@@ -112,6 +112,7 @@ type
     tkDivide = 96; // : Result := 'tkDivide';
     tkUNION = 98; // : Result := 'tkUNION';
     tkNULL = 99; // : Result := 'tkNULL';
+    tkWhen = 100;
     tkIs = 101;
 //    tkElse = 102;
     tkThen = 103;
@@ -156,13 +157,18 @@ type
     tkUnsigned = 143;//: Result := 'tkUnsigned';
     tkMin = 144; //: Result := 'tkMin';
 //    tkIndexName = 145;
+    tkRead = 146;
     tkFunctionName = 147;
+    tkMinus = 148;
     tkPlus = 149; //: Result := 'tkPlus';
     tkLessThanOrEqual = 152;// : Result := 'tkLessThanOrEqual';
     tkGreaterThanOrEqual = 153;//: Result := 'tkGreaterThanOrEqual';
     tkAlterColumn = 154;
     tkCast = 155;//: Result := 'tkCast';
     tkFloat = 156; //: Result := 'tkFloat';
+    tkCurrentDate = 157;
+    tkCurrentTime = 158;
+    tkIIf = 159;
     tkComment = 160; //: Result := 'tkComment';
     tkConcat = 161; //: Result := 'tkConcat';
     tkSubstr = 162; //: Result := 'tkSubstr';
@@ -324,11 +330,17 @@ begin
     TTokenTypes.tkKey: Result := 'tkKey';
     TTokenTypes.tkPrimaryKey: Result := 'tkPrimaryKey';
     TTokenTypes.tkDropColumn: Result := 'tkDropColumn';
+    TTokenTypes.tkAlterColumn: Result := 'tkAlterColumn';
     TTokenTypes.tkCreateOrReplaceView: Result := 'tkCreateOrReplaceView';
+    TTokenTypes.tkCreateTemporaryTable: Result := 'tkCreateTemporaryTable';
     TTokenTypes.tkCheck: Result := 'tkCheck';
     TTokenTypes.tkCreateUniqueIndex: Result := 'tkCreateUniqueIndex';
-  end;
+    TTokenTypes.tkRead: Result := 'tkRead';
 
+    TTokenTypes.tkUnknownToken: Result := '';
+  else
+    Result := 'Token Name !Defined';
+  end;
 end;
 
 
@@ -342,11 +354,11 @@ begin
   if Token = 'SELECT' then
     Result := TTokenTypes.tkSELECT
   else if (TryStrToInt64(token, intValue) = True) and not (Token = '.') then
-    Result := 71 // number value
+    Result := TTokenTypes.tkConstantNumber // number value
   else if (TryStrToFloat(token, floatValue) = True) and not (Token = '.') then
-    Result := 71 // number value
+    Result := TTokenTypes.tkConstantNumber // number value
   else if info.TokenType = System.Classes.toString then
-    Result := 72 // string value
+    Result := TTokenTypes.tkConstantString // string value
   else if Token = 'FROM' then
     Result := TTokenTypes.tkFROM
   else if Token = 'WHERE' then
@@ -489,13 +501,13 @@ begin
   // Result := 84 ORDER BY
   // Result := tkCreateDatabase CREATE DATABASE
   else if Token = 'SUM' then
-    Result := 86 // SUM
+    Result := TTokenTypes.tkSum // SUM
   else if Token = 'COUNT' then
-    Result := 87 // COUNT
+    Result := TTokenTypes.tkCount // COUNT
   else if Token = 'AVG' then
-    Result := 88 // AVG
+    Result := TTokenTypes.tkAvg // AVG
   else if Token = 'EXISTS' then
-    Result := 89 // EXISTS
+    Result := TTokenTypes.tkExists // EXISTS
   else if Token = 'OR' then
     Result := TTokenTypes.tkOr // OR
   else if Token = 'AND' then
@@ -517,11 +529,11 @@ begin
   else if Token = 'NULL' then
     Result := TTokenTypes.tkNULL // *
   else if Token = 'WHEN' then
-    Result := 100 // *
+    Result := TTokenTypes.tkWhen // *
   else if Token = 'IS' then
     Result := TTokenTypes.tkIs // *
   else if Token = 'ELSE' then
-    Result := 102 // *
+    Result := TTokenTypes.tkElse // *
   else if Token = 'THEN' then
     Result := TTokenTypes.tkThen // *
   else if Token = 'BACKUP' then
@@ -543,7 +555,7 @@ begin
   // Result := 115 DROP USER
   // Result := 116 TRUNCATE TABLE
   else if Token = 'IF' then
-    Result := 117 // IF
+    Result := TTokenTypes.tkIf // IF
   // Result := 118 IF EXISTS
   // Result := 119 ALTER TABLE
   else if Token = 'INDEX' then
@@ -568,28 +580,28 @@ begin
   else if Token = 'TABLES' then
     Result := TTokenTypes.tkTables // TABLES
   else if Token = 'DOUBLE' then
-    Result := 137 // DOUBLE
+    Result := TTokenTypes.tkDouble // DOUBLE
   else if Token = 'DEFAULT' then
-    Result := 138 // DEFAULT
+    Result := TTokenTypes.tkDefault // DEFAULT
   else if Token = 'TEMPORARY' then
-    Result := 139 // TEMPORARY
+    Result := TTokenTypes.tkTemporary // TEMPORARY
   else if Token = 'MAX' then
-    Result := 140 // MAX
+    Result := TTokenTypes.tkMax // MAX
   // Result := 141 NOT NULL
   else if Token = 'ZEROFILL' then
-    Result := 142 // MAX
+    Result := TTokenTypes.tkZeroFill // MAX
   else if Token = 'UNSIGNED' then
-    Result := 143 // UNSIGNED
+    Result := TTokenTypes.tkUnsigned // UNSIGNED
   else if Token = 'MIN' then
-    Result := 144 // MIN
+    Result := TTokenTypes.tkMin // MIN
   // Result := 145 indexname
   else if Token = 'READ' then
-    Result := 146 // MIN
+    Result := TTokenTypes.tkRead // MIN
   //  Result := 147 // functionname
   else if Token = '-' then
-    Result := 148 // MIN
+    Result := TTokenTypes.tkMinus // MIN
   else if Token = '+' then
-    Result := 149 // MIN
+    Result := TTokenTypes.tkPlus // MIN
   else if Token = '[' then
     Result := 150 // [
   else if Token = ']' then
@@ -603,17 +615,17 @@ begin
   else if Token = 'FLOAT' then
     Result := TTokenTypes.tkFloat
   else if Token = 'CURRENT_DATE' then
-    Result := 157
+    Result := TTokenTypes.tkCurrentDate
   else if Token = 'CURRENT_TIME' then
-    Result := 158
+    Result := TTokenTypes.tkCurrentTime
   else if Token = 'IIF' then
-    Result := 159
+    Result := TTokenTypes.tkIIf
   else if Token = '--' then
-    Result := 160
+    Result := TTokenTypes.tkComment
   else if Token = 'CONCAT' then
-    Result := 161
+    Result := TTokenTypes.tkConcat
   else if Token = 'SUBSTR' then
-    Result := 162
+    Result := TTokenTypes.tkSubstr
   else if Token = 'ALL' then
     Result := TTokenTypes.tkAll
   else if Token = 'PRIMARY' then
@@ -729,6 +741,9 @@ begin
                                TTokenTypes.tkCreateView,
                                TTokenTypes.tkCreateUser,
                                TTokenTypes.tkCreateTable,
+                               TTokenTypes.tkCreateIndex,
+                               TTokenTypes.tkCreateUniqueIndex,
+                               TTokenTypes.tkCreateOrReplaceView,
                                TTokenTypes.tkDropDatabase,
                                TTokenTypes.tkDropView,
                                TTokenTypes.tkDropTable,
@@ -762,7 +777,9 @@ begin
                                TTokenTypes.tkGrant,
                                TTokenTypes.tkCreateDatabase,
                                TTokenTypes.tkCreateView,
+                               TTokenTypes.tkCreateOrReplaceView,
                                TTokenTypes.tkCreateTable,
+                               TTokenTypes.tkCreateUniqueIndex,
                                TTokenTypes.tkDropDatabase,
                                TTokenTypes.tkDropView,
                                TTokenTypes.tkDropTable,

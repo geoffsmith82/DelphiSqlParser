@@ -80,7 +80,7 @@ type
     value : TSQLParser;
   public
     { Public declarations }
-    procedure ProcessSQL(SQL: string);
+    procedure ProcessSQL(const SQL: string);
   end;
 
 var
@@ -170,7 +170,7 @@ begin
   until tblTestSQLStatements.Eof;
 end;
 
-procedure TForm4.ProcessSQL(SQL: string);
+procedure TForm4.ProcessSQL(const SQL: string);
 var
   i : Integer;
 begin
@@ -193,6 +193,7 @@ begin
   if not Assigned(value) then
       value := TSQLParser.Create;
   Memo1.Clear;
+  Memo2.Clear;
   Memo1.Lines.Text := DataSet.FieldByName('Statements').AsString;
   undecodedCount := 0;
   ProcessSQL(Memo1.Lines.Text);
