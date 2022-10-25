@@ -16,6 +16,7 @@ type
   public
     TokenType: Char;
     Token: string;
+    SourcePos : Int64;
     property TokenSQL: Integer read GetTokenSQL write SetTokenSQL;
   end;
 
@@ -183,8 +184,8 @@ type
     tkCreateOrReplaceView = 172;
     tkCheck = 173;
     tkCreateUniqueIndex = 174;
+    tkAutoIncrement = 175;
     tkUnknownToken = -199;
-
   end;
 
   TTokenBucket = class(TObjectList<TTokenInfo>)
@@ -198,7 +199,7 @@ type
     procedure DropIndex(i: Integer);
   public
     FTokens: TTokenBucket;
-    procedure ProcessSQL(SQL: string);
+    function ProcessSQL(SQL: string):Integer;
     function DoesStatementModifyDB: Boolean;
     function IsDDL: Boolean;
     function DoesDoubleConstantExpressionExist: Boolean;
@@ -634,6 +635,8 @@ begin
     Result := TTokenTypes.tkKey
   else if Token = 'CHECK' then
     Result := TTokenTypes.tkCheck
+  else if Token = 'AUTO_INCREMENT' then
+    Result := TTokenTypes.tkAutoIncrement
   else
     Result := TTokenTypes.tkUnknownToken; // unknown token
 end;
@@ -805,7 +808,40 @@ begin
     // Initial pass - join multi word commands together
     while i < FTokens.Count - 1 do
     begin
-      if ((FTokens[i].TokenSQL = TTokenTypes.tkRight) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkOuter) and (FTokens[i + 2].TokenSQL = TTokenTypes.tkJoin)) then
+      if (FTokens[i].Token.Trim = '`') then
+      begin
+        token := FTokens[i + 1].Token;
+        FTokens.Join(i);
+        FTokens[i].Token := '`' + token;
+      end
+      else if (i > 0) and (FTokens[i - 1].Token = '`') then
+      begin
+        token := FTokens[i - 2].Token;
+        FTokens.Join(i - 2);
+        FTokens[i - 2].Token := token + '`';
+      end
+      else if (i > 0) and FTokens[i - 1].Token.Trim.StartsWith('`') and ((FTokens[i - 1].Token.EndsWith('`') = False) or (FTokens[i - 1].Token <> '`')) then
+      begin
+        FTokens.Join(i - 1);
+      end
+
+      else if (FTokens[i].Token.Trim = '[') then
+      begin
+        token := FTokens[i + 1].Token;
+        FTokens.Join(i);
+        FTokens[i].Token := '[' + token;
+      end
+      else if (i > 0) and (FTokens[i - 1].Token = ']') then
+      begin
+        token := FTokens[i - 2].Token;
+        FTokens.Join(i - 2);
+        FTokens[i - 2].Token := token + ']';
+      end
+      else if (i > 0) and FTokens[i - 1].Token.Trim.StartsWith('[') and ((FTokens[i - 1].Token.EndsWith(']') = False) or (FTokens[i - 1].Token <> '[')) then
+      begin
+        FTokens.Join(i - 1);
+      end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkRight) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkOuter) and (FTokens[i + 2].TokenSQL = TTokenTypes.tkJoin)) then
       begin
         FTokens.Join(i);
         FTokens.Join(i);  // RIGHT OUTER JOIN
@@ -852,7 +888,6 @@ begin
         FTokens.Join(i);  // DROP COLUMN
         FTokens[i].TokenSQL := TTokenTypes.tkDropColumn;
       end
-
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkUNION) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkAll)) then
       begin
         FTokens.Join(i);  // UNION ALL
@@ -1048,7 +1083,7 @@ begin
 
 end;
 
-procedure TSQLParser.ProcessSQL(SQL: string);
+function TSQLParser.ProcessSQL(SQL: string): Integer;
 var
   parser: TParser;
   strStrm: TStringStream;
@@ -1056,15 +1091,28 @@ var
   info: TTokenInfo;
   i: Integer;
 begin
+  Result := -1;
   strStrm := TStringStream.Create;
   try
     FTokens.Clear;
     strStrm.WriteString(SQL);
     strStrm.Position := 0;
-    parser := TParser.Create(strStrm);
+    try
+      parser := TParser.Create(strStrm);
+    except
+      on e : Exception do
+      begin
+        OutputDebugString(PChar('LinePos:'+ parser.LinePos.ToString));
+    //    OutputDebugString(PChar(e.Message));
+      end;
+
+    end;
+  try
     repeat
       begin
-        token := parser.TokenString;
+
+          token := parser.TokenString;
+
   {
       case parser.Token of
         toSymbol:
@@ -1084,14 +1132,24 @@ begin
         info := TTokenInfo.Create;
         info.TokenType := parser.Token;
         info.Token := parser.TokenString;
+        info.SourcePos := parser.SourcePos;
+
         if (info.TokenType = #2) and (info.Token = #0) then
           info.Token := '#';
         info.TokenSQL := TokenStringToTokenSQL(info);
+
   //    Memo2.Lines.Add(token + ' ' + info.TokenSQL.ToString);
         FTokens.Add(info);
       end
     until (parser.NextToken = toEOF);
-
+         except
+          on e : Exception do
+          begin
+            OutputDebugString(PChar('LinePos:'+ parser.LinePos.ToString));
+            Result := parser.LinePos;
+        //    OutputDebugString(PChar(e.Message));
+          end;
+        end;
     i := 0;
 
     CombineTokens;
@@ -1226,6 +1284,14 @@ begin
         if (FTokens[i - 1].TokenSQL = TTokenTypes.tkDropUser) then
         begin
           FTokens[i].TokenSQL := TTokenTypes.tkUsername;
+        end;
+      end;
+
+      if i - 1 >= 0 then // DROP COLUMN ????0
+      begin
+        if (FTokens[i - 1].TokenSQL = TTokenTypes.tkDropColumn) then
+        begin
+          FTokens[i].TokenSQL := TTokenTypes.tkFieldName;
         end;
       end;
 
@@ -1433,6 +1499,10 @@ begin
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkCreateIndex) and (FTokens[i].tokenSQL = TTokenTypes.tkOn) then
         begin
           FTokens[i - 1].TokenSQL := TTokenTypes.tkIndexName;
+        end;
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkCreateOrReplaceView) and (FTokens[i].tokenSQL = TTokenTypes.tkAs) then
+        begin
+          FTokens[i - 1].TokenSQL := TTokenTypes.tkViewName;
         end;
         if (FTokens[i - 2].tokenSQL = TTokenTypes.tkCreateUniqueIndex) and (FTokens[i].tokenSQL = TTokenTypes.tkOn) then
         begin

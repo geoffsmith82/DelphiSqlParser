@@ -41,6 +41,7 @@ uses
   , FireDAC.Phys.MSSQL
   , FireDAC.Phys.MSSQLDef
   , Data.DB.Parser
+  , Vcl.ComCtrls
   ;
 
 type
@@ -69,10 +70,13 @@ type
     tblTestSQLStatementTokensTokenID: TIntegerField;
     tblTestSQLStatementTokensTokenTypeName: TStringField;
     Button3: TButton;
+    tblTestSQLStatementTokensTokenMatch: TStringField;
+    StatusBar1: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Memo1Change(Sender: TObject);
     procedure tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
     procedure tblTestSQLStatementTokensCalcFields(DataSet: TDataSet);
   private
@@ -80,7 +84,7 @@ type
     value : TSQLParser;
   public
     { Public declarations }
-    procedure ProcessSQL(const SQL: string);
+    function ProcessSQL(const SQL: string): Integer;
   end;
 
 var
@@ -170,11 +174,16 @@ begin
   until tblTestSQLStatements.Eof;
 end;
 
-procedure TForm4.ProcessSQL(const SQL: string);
+procedure TForm4.Memo1Change(Sender: TObject);
+begin
+//  OutputDebugString(PChar('SelStart:' + Memo1.SelStart.ToString));
+end;
+
+function TForm4.ProcessSQL(const SQL: string): Integer;
 var
   i : Integer;
 begin
-  value.ProcessSQL(SQL);
+  Result := value.ProcessSQL(SQL);
 
   for i := 0 to value.FTokens.Count - 1 do
   begin
@@ -189,6 +198,7 @@ procedure TForm4.tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
 var
   undecodedCount : Integer;
   j : Integer;
+  errPos : Integer;
 begin
   if not Assigned(value) then
       value := TSQLParser.Create;
@@ -196,7 +206,13 @@ begin
   Memo2.Clear;
   Memo1.Lines.Text := DataSet.FieldByName('Statements').AsString;
   undecodedCount := 0;
-  ProcessSQL(Memo1.Lines.Text);
+  errPos := ProcessSQL(Memo1.Lines.Text);
+  if errPos > 0 then
+  begin
+    Memo1.SelStart := errPos;
+    Memo1.SelLength := 100;
+  end;
+
   for j := 0 to value.FTokens.Count - 1 do
   begin
     if value.FTokens[j].TokenSQL = -199 then
