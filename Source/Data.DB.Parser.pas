@@ -82,6 +82,7 @@ type
     tkReplace = 61;
     tkTrigger = 62;
     tkCommit = 63;
+    tkRollback = 64;
     tkDatabase = 65;
     tkDatabaseName = 66;
     tkViewName = 67;
@@ -231,6 +232,7 @@ begin
     TTokenTypes.tkJoin : Result := 'tkJoin';
     TTokenTypes.tkInto : Result := 'tkInto';
     TTokenTypes.tkOrder : Result := 'tkOrder';
+    TTokenTypes.tkIn : Result := 'tkIn';
     TTokenTypes.tkAsterisk : Result := 'tkAsterisk';
     TTokenTypes.tkEquals : Result := 'tkEquals';
     TTokenTypes.tkEndStatement : Result := 'tkEndStatement';
@@ -478,7 +480,7 @@ begin
   else if Token = 'COMMIT' then
     Result := TTokenTypes.tkCommit
   else if Token = 'ROLLBACK' then
-    Result := 64
+    Result := TTokenTypes.tkRollback
   else if Token = 'DATABASE' then
     Result := TTokenTypes.tkDatabase
   // Result := 66 database name
@@ -490,7 +492,7 @@ begin
     Result := TTokenTypes.tkUse
   // Result := 74 constraint
   else if Token = 'USER' then
-    Result := 75
+    Result := TTokenTypes.tkUser
   // Result := TTokenTypes.tkGroupBy GROUP BY
   // Result := 77 schema name
   // Result := 78 DROP TABLE
@@ -711,7 +713,9 @@ begin
   begin
     if i - 2 >= 0 then
     begin
-      if (FTokens[i - 2].TokenSQL in [71,72]) and (FTokens[i - 1].TokenSQL in [TTokenTypes.tkEquals, 94, 95, 124, 152, 153]) and (FTokens[i].TokenSQL in [71,72]) then
+      if (FTokens[i - 2].TokenSQL in [TTokenTypes.tkConstantNumber, TTokenTypes.tkConstantString]) and
+         (FTokens[i - 1].TokenSQL in [TTokenTypes.tkEquals, TTokenTypes.tkLessThan, TTokenTypes.tkLessThanOrEqual, TTokenTypes.tkNotEqual, TTokenTypes.tkGreaterThan, TTokenTypes.tkGreaterThanOrEqual]) and
+         (FTokens[i].TokenSQL in [TTokenTypes.tkConstantNumber,TTokenTypes.tkConstantString]) then
       begin
         Result := True;
       end;
@@ -737,7 +741,6 @@ begin
                                TTokenTypes.tkDelete,
                                TTokenTypes.tkDrop,
                                TTokenTypes.tkAdd,
-                               51,
                                TTokenTypes.tkGrant,
                                TTokenTypes.tkView,
                                TTokenTypes.tkCreateDatabase,
@@ -753,7 +756,6 @@ begin
                                TTokenTypes.tkDropUser,
                                TTokenTypes.tkTruncateTable,
                                TTokenTypes.tkAlterTable,
-                               TTokenTypes.tkCreateIndex,
                                TTokenTypes.tkDropIndex,
                                TTokenTypes.tkDeleteFrom,
                                TTokenTypes.tkInsertInto,
