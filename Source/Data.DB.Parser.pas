@@ -186,6 +186,9 @@ type
     tkCheck = 173;
     tkCreateUniqueIndex = 174;
     tkAutoIncrement = 175;
+    tkForeign = 176;
+    tkReferences = 177;
+    tkForeignKey = 178;
     tkUnknownToken = -199;
   end;
 
@@ -257,6 +260,8 @@ begin
     TTokenTypes.tkDISTINCT : Result := 'tkDISTINCT';
     TTokenTypes.tkTop : Result := 'tkTop';
     TTokenTypes.tkAdd : Result := 'tkAdd';
+    TTokenTypes.tkUnique : Result := 'tkUnique';
+    TTokenTypes.tkConstraint : Result := 'tkConstraint';
     TTokenTypes.tkValues : Result := 'tkValues';
     TTokenTypes.tkAsc : Result := 'tkAsc';
     TTokenTypes.tkDesc : Result := 'tkDesc';
@@ -338,6 +343,7 @@ begin
     TTokenTypes.tkCreateTemporaryTable: Result := 'tkCreateTemporaryTable';
     TTokenTypes.tkCheck: Result := 'tkCheck';
     TTokenTypes.tkCreateUniqueIndex: Result := 'tkCreateUniqueIndex';
+    TTokenTypes.tkForeignKey: Result := 'tkForeignKey';
     TTokenTypes.tkRead: Result := 'tkRead';
 
     TTokenTypes.tkUnknownToken: Result := '';
@@ -633,6 +639,10 @@ begin
     Result := TTokenTypes.tkAll
   else if Token = 'PRIMARY' then
     Result := TTokenTypes.tkPrimary
+  else if token = 'FOREIGN' then
+    Result := TTokenTypes.tkForeign
+  else if token = 'REFERENCES' then
+    Result := TTokenTypes.tkReferences
   else if Token = 'KEY' then
     Result := TTokenTypes.tkKey
   else if Token = 'CHECK' then
@@ -884,6 +894,11 @@ begin
       begin
         FTokens.Join(i);  // PRIMARY KEY
         FTokens[i].TokenSQL := TTokenTypes.tkPrimaryKey;
+      end
+      else if ((FTokens[i].TokenSQL = TTokenTypes.tkForeign) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkKey)) then
+      begin
+        FTokens.Join(i);  // FOREIGN KEY
+        FTokens[i].TokenSQL := TTokenTypes.tkForeignKey;
       end
       else if ((FTokens[i].TokenSQL = TTokenTypes.tkDrop) and (FTokens[i + 1].TokenSQL = TTokenTypes.tkCOLUMN)) then
       begin
