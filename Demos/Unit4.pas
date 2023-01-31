@@ -42,6 +42,9 @@ uses
   , FireDAC.Phys.MSSQLDef
   , Data.DB.Parser
   , Vcl.ComCtrls
+  , RTTI
+  , System.TypInfo
+  , RegularExpressions
   ;
 
 type
@@ -85,6 +88,19 @@ type
   public
     { Public declarations }
     function ProcessSQL(const SQL: string): Integer;
+  end;
+
+  TIntFieldHelper = class helper for TField
+  private
+    procedure SetTokenType(const Value: TTokenTypes);
+    function AsTTokenType: TTokenTypes;
+  published
+    property AsTokenType: TTokenTypes read AsTTokenType write SetTokenType;
+  end;
+
+  TTokenHelper = record helper for TTokenTypes
+    function ToString: string;
+    function AsInteger: Integer;
   end;
 
 var
@@ -139,7 +155,7 @@ begin
       ProcessSQL(statements[i]);
       for j := 0 to value.FTokens.Count - 1 do
       begin
-        if value.FTokens[j].TokenSQL = -199 then
+        if value.FTokens[j].TokenSQL = tkUnknownToken then
           Inc(undecodedCount);
       end;
       Memo2.Lines.Add('Missed Decoding :' + undecodedCount.ToString);
@@ -166,7 +182,7 @@ begin
       if tblTestSQLStatementTokens.Locate('PositionNo', i, []) then
       begin
         Assert(value.FTokens[i].Token = tblTestSQLStatementTokensTokenText.AsString);
-        Assert(value.FTokens[i].TokenSQL = tblTestSQLStatementTokensTokenID.AsInteger);
+        Assert(value.FTokens[i].TokenSQL = tblTestSQLStatementTokensTokenID.AsTokenType);
       end;
     end;
 
@@ -179,19 +195,48 @@ begin
 //  OutputDebugString(PChar('SelStart:' + Memo1.SelStart.ToString));
 end;
 
+
+function TokenizeSQL(const SQL: string): TArray<string>;
+var
+  Tokens: TArray<string>;
+  Matches: TMatchCollection;
+  Match: TMatch;
+  RegEx: TRegEx;
+  i : Integer;
+begin
+  RegEx := TRegEx.Create('\b\w+\b|[^\w\s]+', [roMultiLine]);
+  Matches := RegEx.Matches(SQL);
+  SetLength(Tokens, Matches.Count);
+  for i := 0 to Matches.Count - 1 do
+  begin
+    Match := Matches.Item[i];
+    Tokens[i] := Match.Value;
+  end;
+  Result := Tokens;
+end;
+
+
 function TForm4.ProcessSQL(const SQL: string): Integer;
 var
   i : Integer;
+  v : TArray<string>;
 begin
   Result := value.ProcessSQL(SQL);
 
   for i := 0 to value.FTokens.Count - 1 do
   begin
-    if value.FTokens[i].TokenSQL = -199 then
+    if value.FTokens[i].TokenSQL = tkUnknownToken then
       Memo2.Lines.Add(i.ToString + '   ============= ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString)
     else
-    Memo2.Lines.Add(i.ToString +  '   ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString);
+    Memo2.Lines.Add(i.ToString +  '   ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.AsInteger.ToString);
   end;
+    Memo2.Lines.Add('///////////////////////////');
+  v := TokenizeSQL(SQL);
+  for i := 0 to length(v) - 1 do
+  begin
+    Memo2.Lines.Add(v[i]);
+  end;
+
 end;
 
 procedure TForm4.tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
@@ -215,7 +260,7 @@ begin
 
   for j := 0 to value.FTokens.Count - 1 do
   begin
-    if value.FTokens[j].TokenSQL = -199 then
+    if value.FTokens[j].TokenSQL = tkUnknownToken then
       Inc(undecodedCount);
   end;
   if tblTestSQLStatementTokens.RecordCount = 0 then
@@ -226,7 +271,7 @@ begin
       tblTestSQLStatementTokens.FieldByName('StatementID').AsInteger := tblTestSQLStatementsID.AsInteger;
       tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger := j;
       tblTestSQLStatementTokens.FieldByName('TokenText').AsString := value.FTokens[j].Token;
-      tblTestSQLStatementTokens.FieldByName('TokenID').AsInteger := value.FTokens[j].TokenSQL;
+      tblTestSQLStatementTokens.FieldByName('TokenID').AsTokenType := value.FTokens[j].TokenSQL;
       tblTestSQLStatementTokens.Post;
     end;
   end;
@@ -253,8 +298,55 @@ begin
 end;
 
 procedure TForm4.tblTestSQLStatementTokensCalcFields(DataSet: TDataSet);
+var
+  TokenID : TTokenTypes;
+  TokenCount : Integer;
+  PositionNo : Integer;
 begin
-  DataSet.FieldByName('TokenTypeName').AsString := TokenIdToTokenString(DataSet.FieldByName('TokenID').AsInteger);
+  DataSet.FieldByName('TokenTypeName').AsString := TokenIdToTokenString(DataSet.FieldByName('TokenID').AsTTokenType);
+  PositionNo := 0;
+
+  if DataSet.Active and (value.TokenCount > 0) and
+    (value.TokenCount > tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger) then
+  begin
+    TokenCount := value.TokenCount;
+    PositionNo := DataSet.FieldByName('PositionNo').AsInteger;
+    if PositionNo > 300 then
+      Exit;
+    TokenID := value.FTokens.Items[PositionNo].TokenSQL;
+//    value.FTokens.T
+    if TokenID = DataSet.FieldByName('TokenID').AsTokenType then
+      DataSet.FieldByName('TokenMatch').AsString := 'Matches'
+    else
+      DataSet.FieldByName('TokenMatch').AsString := '.';
+  end;
+end;
+
+{ TIntFieldHelper }
+
+function TIntFieldHelper.AsTTokenType: TTokenTypes;
+begin
+  Result := TTokenTypes(AsInteger);
+end;
+
+procedure TIntFieldHelper.SetTokenType(const Value: TTokenTypes);
+begin
+  AsInteger := Ord(Value);
+end;
+
+{ TTokenHelper }
+
+function TTokenHelper.AsInteger: Integer;
+begin
+  Result := Ord(Self);
+end;
+
+function TTokenHelper.ToString: string;
+begin
+  if self = tkUnknownToken then
+    Result := 'tkUnknownToken'
+  else
+    Result := GetEnumName(TypeInfo(TTokenHelper), Ord(Self));
 end;
 
 end.

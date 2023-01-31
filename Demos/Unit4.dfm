@@ -134,13 +134,19 @@ object Form4: TForm4
       end
       item
         Expanded = False
+        FieldName = 'TokenTypeName'
+        Visible = True
+      end
+      item
+        Expanded = False
         FieldName = 'TokenText'
         Width = 200
         Visible = True
       end
       item
         Expanded = False
-        FieldName = 'TokenTypeName'
+        FieldName = 'TokenMatch'
+        Width = 328
         Visible = True
       end>
   end
@@ -156,6 +162,20 @@ object Form4: TForm4
     Caption = 'Test SQL and Compare from DB'
     TabOrder = 6
     OnClick = Button3Click
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 1425
+    Width = 2503
+    Height = 48
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
+    Panels = <
+      item
+        Width = 50
+      end>
   end
   object AccessConnection: TFDConnection
     Params.Strings = (
@@ -228,6 +248,11 @@ object Form4: TForm4
     object tblTestSQLStatementTokensTokenTypeName: TStringField
       FieldKind = fkCalculated
       FieldName = 'TokenTypeName'
+      Calculated = True
+    end
+    object tblTestSQLStatementTokensTokenMatch: TStringField
+      FieldKind = fkCalculated
+      FieldName = 'TokenMatch'
       Calculated = True
     end
   end

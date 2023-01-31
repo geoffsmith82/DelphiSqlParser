@@ -7,189 +7,195 @@ uses
   ;
 
 type
-  TTokenInfo = class
+
+
+  TTokenTypes = (
+    tkSELECT = 0,
+    tkFROM = 1,
+    tkWHERE = 2,
+    tkLeft = 3,
+    tkRight = 4,
+    tkInner = 5,
+    tkFull = 6,
+    tkOuter = 7,
+    tkJoin = 8,
+    tkInto = 9,
+    tkOrder = 10,
+    tkGroup = 11,
+    tkBy = 12,
+    tkIn = 13,
+    tkAsterisk = 14,
+    tkEquals = 15,
+    tkEndStatement = 16,
+    tkLeftBracket = 17,
+    tkRightBracket = 18,
+    tkDotSeperator = 19,
+    tkAS = 20,
+    tkOn = 21,
+    tkTableName = 22,
+    tkTableRef = 23,
+    tkFieldName = 24,
+    tkFieldRefName = 25,
+    tkInsert = 29,
+    tkUpdate = 31,
+    tkSet = 32,
+    tkAlter = 33,
+    tkCreate = 34,
+    tkTable = 35,
+    tkBetween = 36, // : Result := 'tkBetween',
+    tkCase = 37, // : Result := 'tkCase',
+    tkDelete = 38, // : Result := 'tkDelete',
+    tkHaving = 39, // : Result := 'tkHaving',
+    tkLIKE = 40, // : Result := 'tkLIKE',
+    tkLimit = 41, // : Result := 'tkLimit',
+    tkDISTINCT = 42,
+    tkWith = 43,
+    tkTop = 44,
+    tkDrop = 45,
+    tkTRUNCATE = 46, // Result := 46
+    tkCOLUMN = 47, // Result := 47
+    tkAdd = 48,
+    tkUnique = 49, // Result := 49
+    tkConstraint = 50, // Result := 50
+//    tkIndex = 51, // Result := 51
+    tkValues = 52, // Result := 52
+    tkAsc = 53, // Result := 53
+    tkDesc = 54, // Result := 54
+    tkElse = 55,
+    tkEnd = 56,
+    tkGrant = 57,
+    tkTo = 58,
+    tkRevoke = 59,
+    tkView = 60,
+    tkReplace = 61,
+    tkTrigger = 62,
+    tkCommit = 63,
+    tkRollback = 64,
+    tkDatabase = 65,
+    tkDatabaseName = 66,
+    tkViewName = 67,
+    tk68 = 68,
+    tkDBOperation = 69,
+    tkUsername = 70,
+    tkConstantNumber = 71,
+    tkConstantString = 72,
+    tkUse = 73,
+    tkUser = 75,
+    tkGroupBy = 76,
+    tkSchemaName = 77,
+    tkRightOuterJoin = 79,
+    tkInnerJoin = 80,
+    tkLeftJoin = 81,
+    tkRightJoin = 82,
+    tkOuterJoin = 83,
+    tkOrderBy = 84,
+    tkCreateDatabase = 85,
+    tkSum = 86, // : Result := 'tkSum',
+    tkCount = 87, // : Result := 'tkCount',
+    tkAvg = 88, // : Result := 'tkAvg',
+    tkExists = 89,// : Result := 'tkExists',
+    tkOr = 90, // : Result := 'tkOr',
+    tkAnd = 91, // : Result := 'tkAnd',
+    tkNot = 92,
+    tkComma = 93, // : Result := 'tkComma',
+    tkLessThan = 94, //: Result := 'tkLessThan',
+    tkGreaterThan = 95, //: Result := 'tkGreaterThan',
+    tkDivide = 96, // : Result := 'tkDivide',
+    tkUNION = 98, // : Result := 'tkUNION',
+    tkNULL = 99, // : Result := 'tkNULL',
+    tkWhen = 100,
+    tkIs = 101,
+//    tkElse = 102,
+    tkThen = 103,
+    tkBackup = 104,
+    tkDisk = 105,
+    tkVarchar = 106,
+    tkInt = 107,
+    tkModify = 108,
+    tkCreateView = 109, // Result := 109 CREATE VIEW
+    tkCreateUser = 110, // Result := 110 CREATE USER
+    tkCreateTable = 111, // Result := 111 CREATE TABLE
+    tkDropDatabase = 112, // Result := TTokenTypes.tkDropDatabase DROP DATABASE
+    tkDropView = 113, // Result := 113 DROP VIEW
+    tkDropTable = 114, // Result := 114 DROP TABLE
+    tkDropUser = 115, // Result := 115 DROP USER
+    tkTruncateTable = 116, // Result := 116 TRUNCATE TABLE
+    tkIf = 117, //  Result := 117 // IF
+    tkIfExists = 118, // Result := 118 IF EXISTS
+    tkAlterTable = 119, // Result := 119 ALTER TABLE
+    tkIndex = 120, // Result := 120 // INDEX
+    tkCreateIndex = 121, // Result := 121 CREATE INDEX
+    tkDropIndex = 122, // Result := 122 DROP INDEX
+    tkDeleteFrom = 123, // Result := 123 DELETE FROM
+    tkNotEqual = 124,// Result := 124 <>
+    tkBackupDatabase = 125,
+    tkToDisk = 126,
+    tkInsertInto = 127,
+    tkDropConstraint = 129,
+    tkIndexName = 130,//: Result := 'tkIndexName',
+    tkConstraintName = 131,// : Result := 'tkConstraintName',
+    tkLockTables = 132, //: Result := 'tkLockTables',
+    tkUnlockTables = 133, //: Result := 'tkUnlockTables',
+    tkLock = 134,
+    tkUnLock = 135,
+    tkTables = 136,
+    tkDouble = 137,//: Result := 'tkDouble',
+    tkDefault = 138, //: Result := 'tkDefault',
+    tkTemporary = 139,
+    tkMax = 140, //: Result := 'tkMax',
+    tkNotNull = 141, //: Result := 'tkNotNull',
+    tkZeroFill = 142,// : Result := 'tkZeroFill',
+    tkUnsigned = 143,//: Result := 'tkUnsigned',
+    tkMin = 144, //: Result := 'tkMin',
+//    tkIndexName = 145,
+    tkRead = 146,
+    tkFunctionName = 147,
+    tkMinus = 148,
+    tkPlus = 149, //: Result := 'tkPlus',
+    tk150 = 150,
+    tkLessThanOrEqual = 152,// : Result := 'tkLessThanOrEqual',
+    tkGreaterThanOrEqual = 153,//: Result := 'tkGreaterThanOrEqual',
+    tkAlterColumn = 154,
+    tkCast = 155,//: Result := 'tkCast',
+    tkFloat = 156, //: Result := 'tkFloat',
+    tkCurrentDate = 157,
+    tkCurrentTime = 158,
+    tkIIf = 159,
+    tkComment = 160, //: Result := 'tkComment',
+    tkConcat = 161, //: Result := 'tkConcat',
+    tkSubstr = 162, //: Result := 'tkSubstr',
+    tkCreateTemporaryTable = 164,
+    tkParam = 165,
+    tkAll = 166,
+    tkUnionAll = 167,
+    tkPrimary = 168,
+    tkKey = 169,
+    tkPrimaryKey = 170,
+    tkDropColumn = 171,
+    tkCreateOrReplaceView = 172,
+    tkCheck = 173,
+    tkCreateUniqueIndex = 174,
+    tkAutoIncrement = 175,
+    tkForeign = 176,
+    tkReferences = 177,
+    tkForeignKey = 178,
+    tkOpenSquareBracket = 179,
+    tkCloseSquareBracket = 180,
+    tkMultiply = 182,
+	tkHash = 183,
+    tkUnknownToken = 1000 );
+
+ TTokenInfo = class
   strict private
-    FTokenSQL : Integer;
+    FTokenSQL : TTokenTypes;
   private
-    function GetTokenSQL: Integer;
-    procedure SetTokenSQL(const Value: Integer);
+    function GetTokenSQL: TTokenTypes;
+    procedure SetTokenSQL(const Value: TTokenTypes);
   public
     TokenType: Char;
     Token: string;
     SourcePos : Int64;
-    property TokenSQL: Integer read GetTokenSQL write SetTokenSQL;
-  end;
-
-  TTokenTypes = record
-  const
-    tkSELECT = 0;
-    tkFROM = 1;
-    tkWHERE = 2;
-    tkLeft = 3;
-    tkRight = 4;
-    tkInner = 5;
-    tkFull = 6;
-    tkOuter = 7;
-    tkJoin = 8;
-    tkInto = 9;
-    tkOrder = 10;
-    tkGroup = 11;
-    tkBy = 12;
-    tkIn = 13;
-    tkAsterisk = 14;
-    tkEquals = 15;
-    tkEndStatement = 16;
-    tkLeftBracket = 17;
-    tkRightBracket = 18;
-    tkDotSeperator = 19;
-    tkAS = 20;
-    tkOn = 21;
-    tkTableName = 22;
-    tkTableRef = 23;
-    tkFieldName = 24;
-    tkFieldRefName = 25;
-    tkInsert = 29;
-    tkUpdate = 31;
-    tkSet = 32;
-    tkAlter = 33;
-    tkCreate = 34;
-    tkTable = 35;
-    tkBetween = 36; // : Result := 'tkBetween';
-    tkCase = 37; // : Result := 'tkCase';
-    tkDelete = 38; // : Result := 'tkDelete';
-    tkHaving = 39; // : Result := 'tkHaving';
-    tkLIKE = 40; // : Result := 'tkLIKE';
-    tkLimit = 41; // : Result := 'tkLimit';
-    tkDISTINCT = 42;
-    tkWith = 43;
-    tkTop = 44;
-    tkDrop = 45;
-    tkTRUNCATE = 46; // Result := 46
-    tkCOLUMN = 47; // Result := 47
-    tkAdd = 48;
-    tkUnique = 49; // Result := 49
-    tkConstraint = 50; // Result := 50
-//    tkIndex = 51; // Result := 51
-    tkValues = 52; // Result := 52
-    tkAsc = 53; // Result := 53
-    tkDesc = 54; // Result := 54
-    tkElse = 55;
-    tkEnd = 56;
-    tkGrant = 57;
-    tkTo = 58;
-    tkRevoke = 59;
-    tkView = 60;
-    tkReplace = 61;
-    tkTrigger = 62;
-    tkCommit = 63;
-    tkRollback = 64;
-    tkDatabase = 65;
-    tkDatabaseName = 66;
-    tkViewName = 67;
-    tkDBOperation = 69;
-    tkUsername = 70;
-    tkConstantNumber = 71;
-    tkConstantString = 72;
-    tkUse = 73;
-    tkUser = 75;
-    tkGroupBy = 76;
-    tkSchemaName = 77;
-    tkRightOuterJoin = 79;
-    tkInnerJoin = 80;
-    tkLeftJoin = 81;
-    tkRightJoin = 82;
-    tkOuterJoin = 83;
-    tkOrderBy = 84;
-    tkCreateDatabase = 85;
-    tkSum = 86; // : Result := 'tkSum';
-    tkCount = 87; // : Result := 'tkCount';
-    tkAvg = 88; // : Result := 'tkAvg';
-    tkExists = 89;// : Result := 'tkExists';
-    tkOr = 90; // : Result := 'tkOr';
-    tkAnd = 91; // : Result := 'tkAnd';
-    tkNot = 92;
-    tkComma = 93; // : Result := 'tkComma';
-    tkLessThan = 94; //: Result := 'tkLessThan';
-    tkGreaterThan = 95; //: Result := 'tkGreaterThan';
-    tkDivide = 96; // : Result := 'tkDivide';
-    tkUNION = 98; // : Result := 'tkUNION';
-    tkNULL = 99; // : Result := 'tkNULL';
-    tkWhen = 100;
-    tkIs = 101;
-//    tkElse = 102;
-    tkThen = 103;
-    tkBackup = 104;
-    tkDisk = 105;
-    tkVarchar = 106;
-    tkInt = 107;
-    tkModify = 108;
-    tkCreateView = 109; // Result := 109 CREATE VIEW
-    tkCreateUser = 110; // Result := 110 CREATE USER
-    tkCreateTable = 111; // Result := 111 CREATE TABLE
-    tkDropDatabase = 112; // Result := TTokenTypes.tkDropDatabase DROP DATABASE
-    tkDropView = 113; // Result := 113 DROP VIEW
-    tkDropTable = 114; // Result := 114 DROP TABLE
-    tkDropUser = 115; // Result := 115 DROP USER
-    tkTruncateTable = 116; // Result := 116 TRUNCATE TABLE
-    tkIf = 117; //  Result := 117 // IF
-    tkIfExists = 118; // Result := 118 IF EXISTS
-    tkAlterTable = 119; // Result := 119 ALTER TABLE
-    tkIndex = 120; // Result := 120 // INDEX
-    tkCreateIndex = 121; // Result := 121 CREATE INDEX
-    tkDropIndex = 122; // Result := 122 DROP INDEX
-    tkDeleteFrom = 123; // Result := 123 DELETE FROM
-    tkNotEqual = 124;// Result := 124 <>
-    tkBackupDatabase = 125;
-    tkToDisk = 126;
-    tkInsertInto = 127;
-    tkDropConstraint = 129;
-    tkIndexName = 130;//: Result := 'tkIndexName';
-    tkConstraintName = 131;// : Result := 'tkConstraintName';
-    tkLockTables = 132; //: Result := 'tkLockTables';
-    tkUnlockTables = 133; //: Result := 'tkUnlockTables';
-    tkLock = 134;
-    tkUnLock = 135;
-    tkTables = 136;
-    tkDouble = 137;//: Result := 'tkDouble';
-    tkDefault = 138; //: Result := 'tkDefault';
-    tkTemporary = 139;
-    tkMax = 140; //: Result := 'tkMax';
-    tkNotNull = 141; //: Result := 'tkNotNull';
-    tkZeroFill = 142;// : Result := 'tkZeroFill';
-    tkUnsigned = 143;//: Result := 'tkUnsigned';
-    tkMin = 144; //: Result := 'tkMin';
-//    tkIndexName = 145;
-    tkRead = 146;
-    tkFunctionName = 147;
-    tkMinus = 148;
-    tkPlus = 149; //: Result := 'tkPlus';
-    tkLessThanOrEqual = 152;// : Result := 'tkLessThanOrEqual';
-    tkGreaterThanOrEqual = 153;//: Result := 'tkGreaterThanOrEqual';
-    tkAlterColumn = 154;
-    tkCast = 155;//: Result := 'tkCast';
-    tkFloat = 156; //: Result := 'tkFloat';
-    tkCurrentDate = 157;
-    tkCurrentTime = 158;
-    tkIIf = 159;
-    tkComment = 160; //: Result := 'tkComment';
-    tkConcat = 161; //: Result := 'tkConcat';
-    tkSubstr = 162; //: Result := 'tkSubstr';
-    tkCreateTemporaryTable = 164;
-    tkParam = 165;
-    tkAll = 166;
-    tkUnionAll = 167;
-    tkPrimary = 168;
-    tkKey = 169;
-    tkPrimaryKey = 170;
-    tkDropColumn = 171;
-    tkCreateOrReplaceView = 172;
-    tkCheck = 173;
-    tkCreateUniqueIndex = 174;
-    tkAutoIncrement = 175;
-    tkForeign = 176;
-    tkReferences = 177;
-    tkForeignKey = 178;
-    tkUnknownToken = -199;
+    property TokenSQL: TTokenTypes read GetTokenSQL write SetTokenSQL;
   end;
 
   TTokenBucket = class(TObjectList<TTokenInfo>)
@@ -208,14 +214,15 @@ type
     function IsDDL: Boolean;
     function DoesDoubleConstantExpressionExist: Boolean;
     function StatementCount: Integer;
+    function TokenCount: Integer;
     constructor Create;
     destructor Destroy; override;
   end;
 
 
 
-function TokenStringToTokenSQL(info: TTokenInfo): Integer;
-function TokenIdToTokenString(inTokenId:Integer): string;
+function TokenStringToTokenSQL(info: TTokenInfo): TTokenTypes;
+function TokenIdToTokenString(inTokenId:TTokenTypes): string;
 
 
 implementation
@@ -224,9 +231,10 @@ uses
     System.SysUtils
   , System.Classes
   , System.StrUtils
+  , Winapi.Windows
   ;
 
-function TokenIdToTokenString(inTokenId:Integer): string;
+function TokenIdToTokenString(inTokenId: TTokenTypes): string;
 begin
   case inTokenId of
     TTokenTypes.tkSELECT : Result := 'tkSELECT';
@@ -345,7 +353,10 @@ begin
     TTokenTypes.tkCreateUniqueIndex: Result := 'tkCreateUniqueIndex';
     TTokenTypes.tkForeignKey: Result := 'tkForeignKey';
     TTokenTypes.tkRead: Result := 'tkRead';
-
+    TTokenTypes.tkAutoIncrement: Result := 'tkAutoIncrement';
+    TTokenTypes.tkCurrentDate: Result := 'tkCurrentDate';
+    TTokenTypes.tkAlter: Result := 'tkAlter';
+    TTokenTypes.tkHash: Result := 'tkHash';
     TTokenTypes.tkUnknownToken: Result := '';
   else
     Result := 'Token Name !Defined';
@@ -353,7 +364,7 @@ begin
 end;
 
 
-function TokenStringToTokenSQL(info: TTokenInfo): Integer;
+function TokenStringToTokenSQL(info: TTokenInfo): TTokenTypes;
 var
   token : string;
   intValue : Int64;
@@ -530,9 +541,9 @@ begin
   else if Token = '>' then
     Result := TTokenTypes.tkGreaterThan // >
   else if Token = '/' then
-    Result := 96 // /
+    Result := TTokenTypes.tkDivide // /
   else if Token = '*' then
-    Result := 97 // *
+    Result := TTokenTypes.tkMultiply // *
   else if Token = 'UNION' then
     Result := TTokenTypes.tkUNION // UNION
   else if Token = 'NULL' then
@@ -554,7 +565,7 @@ begin
   else if Token = 'INT' then
     Result := TTokenTypes.tkInt // *
   else if Token = 'MODIFY' then
-    Result := 108 // *
+    Result := TTokenTypes.tkModify // *
   // Result := 109 CREATE VIEW
   // Result := 110 CREATE USER
   // Result := 111 CREATE TABLE
@@ -612,9 +623,9 @@ begin
   else if Token = '+' then
     Result := TTokenTypes.tkPlus // MIN
   else if Token = '[' then
-    Result := 150 // [
+    Result := TTokenTypes.tkOpenSquareBracket // [
   else if Token = ']' then
-    Result := 151 // ]
+    Result := TTokenTypes.tkCloseSquareBracket // ]
   // Result := 152 // <=
   // Result := 153 // >=
  // else if Token = 'ALTER COLUMN' then
@@ -647,6 +658,8 @@ begin
     Result := TTokenTypes.tkKey
   else if Token = 'CHECK' then
     Result := TTokenTypes.tkCheck
+  else if Token = '#' then
+    Result := TTokenTypes.tkHash
   else if Token = 'AUTO_INCREMENT' then
     Result := TTokenTypes.tkAutoIncrement
   else
@@ -663,12 +676,12 @@ end;
 
 { TTokenInfo }
 
-function TTokenInfo.GetTokenSQL: Integer;
+function TTokenInfo.GetTokenSQL: TTokenTypes;
 begin
   Result := FTokenSQL;
 end;
 
-procedure TTokenInfo.SetTokenSQL(const Value: Integer);
+procedure TTokenInfo.SetTokenSQL(const Value: TTokenTypes);
 begin
   if (TokenSQL = TTokenTypes.tkConstantNumber) or
      (TokenSQL = TTokenTypes.tkConstantString) then
@@ -704,14 +717,21 @@ var
  count : Integer;
  i : Integer;
 begin
-  Result := 0;
-  count := 0;
-  for I := 0 to FTokens.Count - 1 do
-  begin
-    if FTokens[i].TokenSQL = TTokenTypes.tkEndStatement then
-      Inc(count);
+  try
+    count := 0;
+    for I := 0 to FTokens.Count - 1 do
+    begin
+      if FTokens[i].TokenSQL = TTokenTypes.tkEndStatement then
+        Inc(count);
+    end;
+  finally
+    Result := count;
   end;
-  Result := count;
+end;
+
+function TSQLParser.TokenCount: Integer;
+begin
+  Result := FTokens.Count;
 end;
 
 function TSQLParser.DoesDoubleConstantExpressionExist: Boolean;
@@ -1100,6 +1120,21 @@ begin
 
 end;
 
+function ExtractNumberAsString(const S: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := 1 to Length(S) do
+  begin
+    if CharInSet(S[I], ['0'..'9']) then
+      Result := Result + S[I]
+    else //if Result <> '' then
+      Break;
+  end;
+end;
+
+
 function TSQLParser.ProcessSQL(SQL: string): Integer;
 var
   parser: TParser;
@@ -1107,6 +1142,7 @@ var
   token: string;
   info: TTokenInfo;
   i: Integer;
+  tmp : string;
 begin
   Result := -1;
   strStrm := TStringStream.Create;
@@ -1195,7 +1231,7 @@ begin
       end;
 
       if (i - 2 >= 0) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkInto) and {'INTO2 ????1 FROM0'}
-         (FTokens[i].TokenSQL = 1) then
+         (FTokens[i].TokenSQL = tkFrom) then
       begin
         FTokens[i - 1].TokenSQL := TTokenTypes.tkTableName;
       end;
@@ -1208,26 +1244,26 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 86) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'SUM('} then
-          FTokens[i].TokenSQL := 86;
+        if (FTokens[i - 1].TokenSQL = tkSum) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'SUM('} then
+          FTokens[i].TokenSQL := tkSum;
       end;
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 87) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'COUNT('} then
-          FTokens[i].TokenSQL := 87;
+        if (FTokens[i - 1].TokenSQL = tkCount) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'COUNT('} then
+          FTokens[i].TokenSQL := tkCount;
       end;
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 88) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'AVG('} then
-          FTokens[i].TokenSQL := 88;
+        if (FTokens[i - 1].TokenSQL = tkAvg) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'AVG('} then
+          FTokens[i].TokenSQL := tkAvg;
       end;
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 1].TokenSQL = 89) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'EXISTS('} then
-          FTokens[i].TokenSQL := 89;
+        if (FTokens[i - 1].TokenSQL = tkExists) and (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) {'EXISTS('} then
+          FTokens[i].TokenSQL := tkExists;
       end;
 
 
@@ -1259,7 +1295,7 @@ begin
         if (FTokens[i - 1].token = 'JOIN') or (FTokens[i - 1].token = 'INNER JOIN') or (FTokens[i - 1].token = 'LEFT JOIN') or (FTokens[i - 1].token = 'RIGHT JOIN') or (FTokens[i - 1].token = 'OUTER JOIN') or (FTokens[i - 1].token = 'FULL OUTER JOIN') then
           FTokens[i].TokenSQL := TTokenTypes.tkTableName;
         if FTokens[i].Token = '[' then
-          FTokens[i].TokenSQL := 150;
+          FTokens[i].TokenSQL := tk150;
       end;
 
       if i - 2 >= 0 then  // ON
@@ -1290,7 +1326,7 @@ begin
 
       if i - 2 >= 0 then // LOCK TABLES2 ????1 READ0
       begin
-        if (FTokens[i - 2].TokenSQL = TTokenTypes.tkLockTables) and (FTokens[i].TokenSQL = 146) then
+        if (FTokens[i - 2].TokenSQL = TTokenTypes.tkLockTables) and (FTokens[i].TokenSQL = tkRead) then
         begin
           FTokens[i-1].TokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1410,7 +1446,7 @@ begin
       begin // SELECT ???? ,
         FTokens[i].tokenSQL := TTokenTypes.tkFieldName;
       end
-      else if (FTokens[i - 1].tokenSQL = TTokenTypes.tkSELECT) and (FTokens[i + 1].tokenSQL = 1) then
+      else if (FTokens[i - 1].tokenSQL = TTokenTypes.tkSELECT) and (FTokens[i + 1].tokenSQL = tkFROM) then
       begin // SELECT ???? FROM
         if FTokens[i].Token = '*' then
           FTokens[i].tokenSQL := TTokenTypes.tkAsterisk
@@ -1449,12 +1485,12 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if ( (FTokens[i - 2].tokenSQL = TTokenTypes.tkDISTINCT) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = TTokenTypes.tkOrderBy ) ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
+        if ( (FTokens[i - 2].tokenSQL = TTokenTypes.tkDISTINCT) or (FTokens[i - 2].tokenSQL = tkAnd ) or (FTokens[i - 2].tokenSQL = TTokenTypes.tkOrderBy ) ) and (FTokens[i].tokenSQL = TTokenTypes.tkDotSeperator) then
         begin  // ORDER BY ????.?????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkTableName;
           FTokens[i + 1].tokenSQL := TTokenTypes.tkFieldName;
         end
-        else if ( (FTokens[i - 2].tokenSQL = TTokenTypes.tkDISTINCT) or (FTokens[i - 2].tokenSQL = 91 ) or (FTokens[i - 2].tokenSQL = TTokenTypes.tkOrderBy ) ) then
+        else if ( (FTokens[i - 2].tokenSQL = TTokenTypes.tkDISTINCT) or (FTokens[i - 2].tokenSQL = tkAnd ) or (FTokens[i - 2].tokenSQL = TTokenTypes.tkOrderBy ) ) then
         begin // ORDER BY ????
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1577,7 +1613,7 @@ begin
         then
         begin
           FTokens[i - 4].TokenSQL := TTokenTypes.tkDBOperation;
-          FTokens[i - 2].TokenSQL := 68;
+          FTokens[i - 2].TokenSQL := tk68;
           FTokens[i].TokenSQL := TTokenTypes.tkUsername;
         end
       end;
@@ -1588,7 +1624,7 @@ begin
            (FTokens[i - 1].tokenSQL = TTokenTypes.tkTo)
         then
         begin
-          FTokens[i - 2].TokenSQL := 68;
+          FTokens[i - 2].TokenSQL := tk68;
           FTokens[i].TokenSQL := TTokenTypes.tkUsername;
         end
       end;
@@ -1700,7 +1736,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkComma) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = 2) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkComma) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i-0].tokenSQL = tkWhere) then
         begin //  SELECT 2 ????1 AS0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1740,7 +1776,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkComma) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = 137) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkComma) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = tkDouble) then
         begin //  COLUMN 2 ????1 VARCHAR0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1780,7 +1816,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkTable) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = 101) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkTable) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = tkIs) then
         begin //  TABLE 2 ????1 (0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
@@ -1796,7 +1832,7 @@ begin
 
       if i - 2 >= 0 then
       begin
-        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkElse) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = 56) then
+        if (FTokens[i - 2].tokenSQL = TTokenTypes.tkElse) and (FTokens[i - 1].tokenSQL = TTokenTypes.tkUnknownToken) and (FTokens[i].tokenSQL = tkEnd) then
         begin //  TABLE 2 ????1 (0
           FTokens[i - 1].tokenSQL := TTokenTypes.tkFieldName;
         end;
