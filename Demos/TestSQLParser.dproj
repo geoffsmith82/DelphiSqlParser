@@ -57,6 +57,7 @@
             <Form>Form4</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="..\Source\Data.DB.Lexer.pas"/>
         <DCCReference Include="..\Source\Data.DB.Parser.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

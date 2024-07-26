@@ -163,8 +163,14 @@ begin
             begin
               Result := CharInSet(C, ['0'..'9', '.', 'e', 'E', '+', '-']);
             end);
+          if FCurrentToken.Value.EndsWith('--') then
+          begin
+            Dec(FPosition, 2);
+            FCurrentToken.Value := FCurrentToken.Value.Substring(0, FCurrentToken.Value.Length - 2);
+          end;
+
         end;
-      '.', ',',';':
+      '.', ',', ';':
         begin
           FCurrentToken.TokenType := ttOperator;
           FCurrentToken.Value := Ch;
@@ -181,10 +187,12 @@ begin
         begin
           if PeekNextChar = '-' then
           begin
-           // GetNextChar; // Consume the second '-'
-            RemainingString;
+            GetNextChar; // Consume the second '-'
             FCurrentToken.TokenType := ttComment;
-            FCurrentToken.Value := Ch + ReadRest;
+            FCurrentToken.Value := Ch + '-' + ReadWhile(function(C: Char): Boolean
+              begin
+                Result := C <> #10;
+              end);
           end
           else
           begin
