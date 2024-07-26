@@ -1,181 +1,186 @@
 object Form4: TForm4
   Left = 0
-  Top = 0
+  Top = 991
+  Margins.Left = 1
+  Margins.Top = 1
+  Margins.Right = 1
+  Margins.Bottom = 1
   Caption = 'Test SQL Parser'
-  ClientHeight = 1534
-  ClientWidth = 2478
+  ClientHeight = 589
+  ClientWidth = 1001
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -28
+  Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  Position = poDesigned
   OnCreate = FormCreate
-  PixelsPerInch = 240
-  TextHeight = 34
+  DesignSize = (
+    1001
+    589)
+  TextHeight = 13
   object Memo1: TMemo
-    Left = 14
-    Top = 440
-    Width = 1427
-    Height = 304
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 6
+    Top = 176
+    Width = 571
+    Height = 122
+    HideSelection = False
     Lines.Strings = (
       
         'SELECT Year(t1.date), * FROM t1 AS table1 INNER JOIN table2 ON t' +
         'able1.f1 = table2.f2 WHERE (table1.id = '
       '12);')
     TabOrder = 0
+    OnChange = Memo1Change
   end
   object Memo2: TMemo
-    Left = 13
-    Top = 760
-    Width = 1428
-    Height = 566
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 6
+    Top = 304
+    Width = 571
+    Height = 226
     ScrollBars = ssBoth
     TabOrder = 1
   end
   object Button1: TButton
-    Left = 1360
-    Top = 1340
-    Width = 188
-    Height = 64
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 544
+    Top = 536
+    Width = 75
+    Height = 26
     Caption = 'Decode SQL'
     TabOrder = 2
     OnClick = Button1Click
   end
   object Button2: TButton
-    Left = 940
-    Top = 1340
-    Width = 328
-    Height = 64
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 376
+    Top = 536
+    Width = 131
+    Height = 26
     Caption = 'Decode SQL From File'
     TabOrder = 3
     OnClick = Button2Click
   end
   object DBGrid1: TDBGrid
-    Left = 13
-    Top = 40
-    Width = 1428
-    Height = 362
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 6
+    Top = 16
+    Width = 571
+    Height = 145
     DataSource = dsTestSQLStatements
     TabOrder = 4
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
-    TitleFont.Height = -28
+    TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
     Columns = <
       item
         Expanded = False
         FieldName = 'ID'
-        Width = 128
+        Width = 67
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'Dialect'
-        Width = 150
+        Width = 60
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'Statements'
-        Width = 128
+        Width = 67
         Visible = True
       end>
   end
   object DBGrid2: TDBGrid
-    Left = 1457
-    Top = 40
-    Width = 904
-    Height = 581
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 583
+    Top = 16
+    Width = 413
+    Height = 514
+    Anchors = [akLeft, akTop, akRight]
     DataSource = dsSQLStatementTokens
     TabOrder = 5
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
-    TitleFont.Height = -28
+    TitleFont.Height = -11
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
     Columns = <
       item
         Expanded = False
         FieldName = 'PositionNo'
-        Width = 160
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'TokenID'
-        Width = 160
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'TokenTypeName'
+        Width = 122
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'TokenText'
-        Width = 200
+        Width = 80
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'TokenCurrentlyDecodedAs'
         Visible = True
       end
       item
         Expanded = False
         FieldName = 'TokenMatch'
-        Width = 328
+        Width = 131
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'TokenCurrentString'
         Visible = True
       end>
   end
   object Button3: TButton
-    Left = 400
-    Top = 1340
-    Width = 508
-    Height = 63
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Left = 160
+    Top = 536
+    Width = 203
+    Height = 26
     Caption = 'Test SQL and Compare from DB'
     TabOrder = 6
     OnClick = Button3Click
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 1425
-    Width = 2503
-    Height = 48
-    Margins.Left = 8
-    Margins.Top = 8
-    Margins.Right = 8
-    Margins.Bottom = 8
+    Top = 570
+    Width = 1001
+    Height = 19
     Panels = <
       item
-        Width = 50
+        Width = 20
       end>
+  end
+  object Button4: TButton
+    Left = 656
+    Top = 536
+    Width = 75
+    Height = 25
+    Caption = 'Button4'
+    TabOrder = 8
+    OnClick = Button4Click
+  end
+  object Button5: TButton
+    Left = 760
+    Top = 536
+    Width = 75
+    Height = 25
+    Caption = 'ResetDB'
+    TabOrder = 9
+    OnClick = Button5Click
   end
   object AccessConnection: TFDConnection
     Params.Strings = (
@@ -195,7 +200,6 @@ object Form4: TForm4
       FieldName = 'ID'
       Origin = 'ID'
       ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
     end
     object tblTestSQLStatementsDialect: TWideStringField
       FieldName = 'Dialect'
@@ -226,7 +230,6 @@ object Form4: TForm4
       FieldName = 'TestSqlId'
       Origin = 'TestSqlId'
       ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
     end
     object tblTestSQLStatementTokensStatementID: TIntegerField
       FieldName = 'StatementID'
@@ -257,7 +260,7 @@ object Form4: TForm4
     end
   end
   object dsSQLStatementTokens: TDataSource
-    DataSet = tblTestSQLStatementTokens
+    DataSet = tblResultsTokens
     Left = 736
     Top = 80
   end
@@ -283,5 +286,40 @@ object Form4: TForm4
     LoginPrompt = False
     Left = 1572
     Top = 920
+  end
+  object tblResultsTokens: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 440
+    Top = 56
+    object tblResultsTokensPositionNo: TIntegerField
+      FieldName = 'PositionNo'
+    end
+    object tblResultsTokensTokenID: TStringField
+      FieldName = 'TokenID'
+    end
+    object tblResultsTokensTokenTypeName: TStringField
+      FieldName = 'TokenTypeName'
+      Size = 30
+    end
+    object tblResultsTokensTokenText: TStringField
+      FieldName = 'TokenText'
+    end
+    object tblResultsTokensTokenMatch: TStringField
+      FieldName = 'TokenMatch'
+    end
+    object tblResultsTokensTokenCurrentlyDecodedAs: TStringField
+      FieldName = 'TokenCurrentlyDecodedAs'
+      Size = 30
+    end
+    object tblResultsTokensTokenCurrentString: TStringField
+      FieldName = 'TokenCurrentString'
+      Size = 40
+    end
   end
 end

@@ -32,7 +32,6 @@ type
     function GetLinePos: Integer;
     function GetToken: TCharType;
     function ReadRest: string;
-    function RemainingString: string;
   public
     constructor Create(const AInput: string); overload;
     constructor Create(AStream: TStream); overload;
@@ -78,11 +77,6 @@ begin
     Inc(FLine);
 end;
 
-function TSQLLexer.RemainingString: string;
-begin
-  Result := FInput.Substring(FPosition);
-end;
-
 function TSQLLexer.PeekNextChar: Char;
 begin
   if (FPosition) > Length(FInput) then
@@ -123,13 +117,6 @@ begin
   while not IsEOF do
   begin
     Ch := GetNextChar;
- //   if not Predicate(Ch) then
-//    begin
-//      Dec(FPosition);
-//      if Ch = #10 then
-//        Dec(FLine);
-//      Break;
-//    end;
     Result := Result + Ch;
   end;
 end;
@@ -155,6 +142,7 @@ begin
             begin
               Result := CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9', '_']);
             end);
+
         end;
       '0'..'9':
         begin
@@ -291,7 +279,7 @@ begin
         Result := ctComment
       else
         Result := ctOther;
-    '.', ',':
+    '.', ',', ';':
       Result := ctOther;
     else
       Result := ctOther;
