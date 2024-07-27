@@ -46,7 +46,17 @@ type
     tkShowFullProcessList, tkShowFullTables, tkShowPlugins, tkShowProcedureStatus,
     tkShowProcessList, tkShowProfile, tkShowProfiles, tkShowSchemas,
     tkShowStorageEngines, tkShowTableStatus, tkShowTables, tkShowEngineInnoDBStatus,
-    tkShowWarnings, tkConstantDate, tkColon
+    tkShowWarnings, tkConstantDate, tkColon, tkExplain, tkAnalyzeTable,
+    tkChecksumTable, tkRepairTable, tkSetCharacterSet, tkFlushPriviledges,
+    tkRevokeAllPrivileges, tkStartTransaction, tkCreateRole, tkSetPasswordFor,
+    tkAlterIndex, tkAttachPartition, tkAlterSystem, tkAlterView, tkCluster,
+    tkCommentOn, tkCopy, tkCreateAggregate, tkCreateCast, tkCreateDomain,
+    tkCreateExtension, tkCreateLanguage, tkCreateOperator, tkCreatePolicy,
+    tkCreateRule, tkCreateSchema, tkCreateSequence, tkCreateSubscription,
+    tkCreateTablespace, tkCreateType, tkCreateUserMapping, tkCreatePublication,
+    tkDiscard, tkDo, tkExecute, tkListen, tkLoad, tkMove,
+    tkNotify, tkReassignOwned, tkReindex, tkReset,
+    tkSavepoint, tkSecurityLabel, tkUnlisten, tkVacuum
     );
 
   TTokenInfo = class
@@ -560,12 +570,16 @@ begin
   AddTokenCombination(['<', '='], tkLessThanOrEqual);
   AddTokenCombination(['<', '>'], tkNotEqual);
   AddTokenCombination(['>', '='], tkGreaterThanOrEqual);
+  AddTokenCombination(['ANALYZE', 'TABLE'], tkAnalyzeTable);
   AddTokenCombination(['ALTER', 'COLUMN'], tkAlterColumn);
+  AddTokenCombination(['ALTER', 'INDEX'], tkAlterIndex);
   AddTokenCombination(['ALTER', 'TABLE'], tkAlterTable);
+  AddTokenCombination(['ATTACH', 'PARTITION'], tkAttachPartition);
   AddTokenCombination(['BACKUP', 'DATABASE'], tkBackupDatabase);
   AddTokenCombination(['CREATE', 'DATABASE'], tkCreateDatabase);
   AddTokenCombination(['CREATE', 'DEFINER'], tkCreateDefiner);
   AddTokenCombination(['CREATE', 'FUNCTION'], tkCreateFunction);
+  AddTokenCombination(['CHECKSUM', 'TABLE'], tkChecksumTable);
   AddTokenCombination(['CREATE', 'INDEX'], tkCreateIndex);
   AddTokenCombination(['CREATE', 'OR', 'REPLACE', 'TRIGGER'], tkCreateOrAlterTrigger);
   AddTokenCombination(['CREATE', 'OR', 'REPLACE', 'VIEW'], tkCreateOrReplaceView);
@@ -574,6 +588,7 @@ begin
   AddTokenCombination(['CREATE', 'TRIGGER'], tkCreateTrigger);
   AddTokenCombination(['CREATE', 'UNIQUE', 'INDEX'], tkCreateUniqueIndex);
   AddTokenCombination(['CREATE', 'USER'], tkCreateUser);
+  AddTokenCombination(['CREATE', 'ROLE'], tkCreateRole);
   AddTokenCombination(['CREATE', 'VIEW'], tkCreateView);
   AddTokenCombination(['DELETE', 'FROM'], tkDeleteFrom);
   AddTokenCombination(['DISABLE', 'TRIGGER'], tkDisableTrigger);
@@ -592,6 +607,7 @@ begin
   AddTokenCombination(['DROP', 'VIEW'], tkDropView);
   AddTokenCombination(['ENABLE', 'TRIGGER'], tkEnableTrigger);
   AddTokenCombination(['FOREIGN', 'KEY'], tkForeignKey);
+  AddTokenCombination(['FLUSH', 'PRIVILEGES'], tkFlushPriviledges);
   AddTokenCombination(['GROUP', 'BY'], tkGroupBy);
   AddTokenCombination(['IF', 'EXISTS'], tkIfExists);
   AddTokenCombination(['INNER', 'JOIN'], tkInnerJoin);
@@ -599,12 +615,17 @@ begin
   AddTokenCombination(['LEFT', 'JOIN'], tkLeftJoin);
   AddTokenCombination(['LOCK', 'TABLES'], tkLockTables);
   AddTokenCombination(['NOT', 'NULL'], tkNotNull);
+  AddTokenCombination(['OPTIMIZE', 'TABLE'], tkOuterJoin);
   AddTokenCombination(['ORDER', 'BY'], tkOrderBy);
   AddTokenCombination(['OUTER', 'JOIN'], tkOuterJoin);
   AddTokenCombination(['PRIMARY', 'KEY'], tkPrimaryKey);
   AddTokenCombination(['RENAME', 'TABLE'], tkRenameTable);
+  AddTokenCombination(['REVOKE', 'ALL', 'PRIVILEGES'], tkRevokeAllPrivileges);
+  AddTokenCombination(['REPAIR', 'TABLE'], tkRepairTable);
   AddTokenCombination(['RIGHT', 'JOIN'], tkRightJoin);
   AddTokenCombination(['RIGHT', 'OUTER', 'JOIN'], tkRightOuterJoin);
+  AddTokenCombination(['SET', 'CHARACTER', 'SET'], tkSetCharacterSet);
+  AddTokenCombination(['SET', 'PASSWORD', 'FOR'], tkSetPasswordFor);
   AddTokenCombination(['SHOW', 'BINARY', 'LOG', 'STATUS'], tkShowBinaryLogStatus);
   AddTokenCombination(['SHOW', 'BINARY', 'LOGS'], tkShowBinaryLogs);
   AddTokenCombination(['SHOW', 'BINLOG', 'EVENTS'], tkShowBinLogEvents);
@@ -646,11 +667,53 @@ begin
   AddTokenCombination(['SHOW', 'TABLES'], tkShowTables);
   AddTokenCombination(['SHOW', 'TRIGGERS'], tkShowTriggers);
   AddTokenCombination(['SHOW', 'WARNINGS'], tkShowWarnings);
+  AddTokenCombination(['START', 'TRANSACTION'], tkStartTransaction);
   AddTokenCombination(['TO', 'DISK'], tkToDisk);
   AddTokenCombination(['TRUNCATE', 'TABLE'], tkTruncateTable);
   AddTokenCombination(['UNION', 'ALL'], tkUnionAll);
   AddTokenCombination(['UNLOCK', 'TABLES'], tkUnlockTables);
-//  AddTokenCombination([':'], tkColon);
+
+  // PostgreSQL specific commands
+  AddTokenCombination(['ALTER', 'SYSTEM'], tkAlterSystem);
+  AddTokenCombination(['ALTER', 'VIEW'], tkAlterView);
+  AddTokenCombination(['CLUSTER'], tkCluster);
+  AddTokenCombination(['COMMENT', 'ON'], tkCommentOn);
+  AddTokenCombination(['COPY'], tkCopy);
+  AddTokenCombination(['CREATE', 'AGGREGATE'], tkCreateAggregate);
+  AddTokenCombination(['CREATE', 'CAST'], tkCreateCast);
+  AddTokenCombination(['CREATE', 'DOMAIN'], tkCreateDomain);
+  AddTokenCombination(['CREATE', 'EXTENSION'], tkCreateExtension);
+  AddTokenCombination(['CREATE', 'LANGUAGE'], tkCreateLanguage);
+  AddTokenCombination(['CREATE', 'OPERATOR'], tkCreateOperator);
+  AddTokenCombination(['CREATE', 'POLICY'], tkCreatePolicy);
+  AddTokenCombination(['CREATE', 'RULE'], tkCreateRule);
+  AddTokenCombination(['CREATE', 'SCHEMA'], tkCreateSchema);
+  AddTokenCombination(['CREATE', 'SEQUENCE'], tkCreateSequence);
+  AddTokenCombination(['CREATE', 'SUBSCRIPTION'], tkCreateSubscription);
+  AddTokenCombination(['CREATE', 'TABLESPACE'], tkCreateTablespace);
+  AddTokenCombination(['CREATE', 'TYPE'], tkCreateType);
+  AddTokenCombination(['CREATE', 'USER', 'MAPPING'], tkCreateUserMapping);
+  AddTokenCombination(['CREATE', 'PUBLICATION'], tkCreatePublication);
+  AddTokenCombination(['DISCARD'], tkDiscard);
+  AddTokenCombination(['DO'], tkDo);
+  AddTokenCombination(['EXECUTE'], tkExecute);
+  AddTokenCombination(['EXPLAIN'], tkExplain);
+  AddTokenCombination(['LISTEN'], tkListen);
+  AddTokenCombination(['LOAD'], tkLoad);
+  AddTokenCombination(['MOVE'], tkMove);
+  AddTokenCombination(['NOTIFY'], tkNotify);
+  AddTokenCombination(['REASSIGN', 'OWNED'], tkReassignOwned);
+  AddTokenCombination(['REINDEX'], tkReindex);
+  AddTokenCombination(['RESET'], tkReset);
+  AddTokenCombination(['REVOKE'], tkRevoke);
+  AddTokenCombination(['ROLLBACK'], tkRollback);
+  AddTokenCombination(['SAVEPOINT'], tkSavepoint);
+  AddTokenCombination(['SECURITY', 'LABEL'], tkSecurityLabel);
+  AddTokenCombination(['SET'], tkSet);
+  AddTokenCombination(['UNLISTEN'], tkUnlisten);
+  AddTokenCombination(['VACUUM'], tkVacuum);
+  AddTokenCombination(['VALUES'], tkValues);
+  AddTokenCombination(['WITH'], tkWith);
 
   while i < FTokens.Count - 1 do
   begin
@@ -661,6 +724,8 @@ begin
 
   ScanForDateCombination;
 end;
+
+
 
 procedure TSQLParser.ScanForDateCombination;
 var
