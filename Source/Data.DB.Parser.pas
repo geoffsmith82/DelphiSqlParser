@@ -46,7 +46,7 @@ type
     tkShowFullProcessList, tkShowFullTables, tkShowPlugins, tkShowProcedureStatus,
     tkShowProcessList, tkShowProfile, tkShowProfiles, tkShowSchemas,
     tkShowStorageEngines, tkShowTableStatus, tkShowTables, tkShowEngineInnoDBStatus,
-    tkShowWarnings, tkDateConstant, tkColon
+    tkShowWarnings, tkConstantDate, tkColon
     );
 
   TTokenInfo = class
@@ -87,6 +87,7 @@ type
     function DoesStatementModifyDB: Boolean;
     function IsDDL: Boolean;
     function DoesDoubleConstantExpressionExist: Boolean;
+    function DoesConstantValueExist: Boolean;
     function DoesSelectConstantExist: Boolean;
     function DoesCommentExist: Boolean;
     function StatementCount: Integer;
@@ -364,6 +365,22 @@ end;
 function TSQLParser.TokenCount: Integer;
 begin
   Result := FTokens.Count;
+end;
+
+function TSQLParser.DoesConstantValueExist: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to FTokens.Count - 1 do
+  begin
+    if (FTokens[i].TokenSQL in [tkConstantNumber,
+                                tkConstantString,
+                                tkConstantDate]) then
+    begin
+      Result := True;
+    end;
+  end;
 end;
 
 function TSQLParser.DoesCommentExist: Boolean;
@@ -671,7 +688,7 @@ begin
       // Join the tokens
       for var j := 1 to 6 do
         FTokens.Join(i);
-      FTokens[i].TokenSQL := tkDateConstant; // Example: You can set to any relevant type if needed
+      FTokens[i].TokenSQL := tkConstantDate; // Example: You can set to any relevant type if needed
       FTokens[i].Token := FTokens[i].Token.Replace(' ', '');
       FTokens[i].Token := FTokens[i].Token.Replace('#', '');
     end

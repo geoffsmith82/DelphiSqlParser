@@ -333,6 +333,11 @@ begin
   begin
     Memo2.Lines.Add('Select Constant Expression EXISTS!!!!!!!!!!!!!!');
   end;
+  if SqlTokens.DoesConstantValueExist then
+  begin
+    Memo2.Lines.Add('Constant Value EXISTS. Should this come in via a sql parameter?');
+  end;
+
   if SqlTokens.StatementCount > 1 then
   begin
     Memo2.Lines.Add('MULTIPLE STATEMENTS EXISTS!!!!!!!!!!!!!!');

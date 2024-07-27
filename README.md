@@ -8,6 +8,7 @@ I have listed some goals of this project below.
   - by forcing the use of parameters by preventing the use of constant values in SQL
   - detecting multiple statements that are going to be executed together
   - detecting always true / always false statements
+  - detecting statements like `select 1` in a where restriction
 ### SQL Manipulation
   - Do equivilant of SQL refactoring (renaming various things like table names,field names etc)
   - Convert between different dialects of SQL
@@ -18,5 +19,7 @@ I have listed some goals of this project below.
   - The project can currently decode 69 out of the 70 test SQL statements.
   - The project can compare what the expected AST is to what the decoded AST is to ensure the parser is working properly
   - At the moment no attempt to limit SQL dialect type has been implemented.
-  - Initial testing of 1 = 1 like conditions for detecting SQL Injection attacks
+  - Initial testing of `1 = 1` like conditions for detecting SQL Injection attacks
+  - Initial testing of `select 1` like conditions in where clauses
+  - Detection of constant value anywhere in the SQL statement
   - Add check for multiple statements in SQL text
