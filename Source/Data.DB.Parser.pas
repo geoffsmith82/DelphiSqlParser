@@ -46,7 +46,7 @@ type
     tkShowFullProcessList, tkShowFullTables, tkShowPlugins, tkShowProcedureStatus,
     tkShowProcessList, tkShowProfile, tkShowProfiles, tkShowSchemas,
     tkShowStorageEngines, tkShowTableStatus, tkShowTables, tkShowEngineInnoDBStatus,
-    tkShowWarnings, tkDateConstant
+    tkShowWarnings, tkDateConstant, tkColon
     );
 
   TTokenInfo = class
@@ -613,6 +613,7 @@ begin
   AddTokenCombination(['TRUNCATE', 'TABLE'], tkTruncateTable);
   AddTokenCombination(['UNION', 'ALL'], tkUnionAll);
   AddTokenCombination(['UNLOCK', 'TABLES'], tkUnlockTables);
+//  AddTokenCombination([':'], tkColon);
 
   while i < FTokens.Count - 1 do
   begin
@@ -628,7 +629,15 @@ procedure TSQLParser.ScanForDateCombination;
 var
   i: Integer;
 begin
+  for i := 0 to FTokens.Count - 1 do
+  begin
+    if (FTokens[i].Token.StartsWith(':') ) then
+    begin
+      FTokens[i].TokenSQL := tkParam;
+    end
+  end;
   i := 0;
+
   while i <= FTokens.Count - 7 do
   begin
     if (FTokens[i].TokenSQL = tkHash) and
@@ -765,6 +774,22 @@ begin
         if (FTokens[i - 1].TokenSQL = tkSum) and
            (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) then
           FTokens[i].TokenSQL := tkSum;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].TokenSQL = tkSelect) and
+           (FTokens[i].TokenSQL = tkFrom) and
+           (FTokens[i - 1].TokenSQL = tkUnknownToken) then
+          FTokens[i - 1].TokenSQL := tkFieldName
+        else if (FTokens[i - 2].TokenSQL = tkSelect) and
+           (FTokens[i].TokenSQL = tkAs) and
+           (FTokens[i - 1].TokenSQL = tkUnknownToken) then
+          FTokens[i - 1].TokenSQL := tkFieldName
+        else if (FTokens[i - 2].TokenSQL = tkSelect) and
+           (FTokens[i].TokenSQL = tkComma) and
+           (FTokens[i - 1].TokenSQL = tkUnknownToken) then
+          FTokens[i - 1].TokenSQL := tkFieldName;
       end;
 
       if i - 2 >= 0 then

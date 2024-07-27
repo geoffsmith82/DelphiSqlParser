@@ -120,6 +120,14 @@ begin
           // Skip whitespace characters
           Continue;
         end;
+      ':':
+        begin
+          FCurrentToken.TokenType := ttIdentifier;
+          FCurrentToken.Value := Ch + ReadWhile(function(C: Char): Boolean
+            begin
+              Result := CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9', '_']);
+            end);
+        end;
       'A'..'Z', 'a'..'z', '_':
         begin
           FCurrentToken.TokenType := ttIdentifier;
