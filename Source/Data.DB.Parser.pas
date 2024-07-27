@@ -489,7 +489,7 @@ var
     match := True;
     for j := 0 to High(ATokenMatch.Tokens) do
     begin
-      if FTokens[i + j].Token <> ATokenMatch.Tokens[j] then
+      if FTokens[i + j].Token.ToUpper <> ATokenMatch.Tokens[j].ToUpper then
       begin
         match := False;
         Break;
