@@ -1,22 +1,17 @@
 unit Data.DB.Lexer;
 
 interface
-
 uses
   System.SysUtils, System.Classes;
-
 type
   TTokenType = (ttUnknown, ttKeyword, ttIdentifier, ttOperator, ttNumber, ttString, ttComment, ttWhitespace, ttEOF);
-
   TCharType = (ctOther, ctLetterStart, ctLetterNumber, ctNumber, ctHash, ctQuote, ctDollar, ctDash, ctComment);
-
   TToken = record
     TokenType: TTokenType;
     Value: string;
     Position: Integer;
     Line: Integer;
   end;
-
   TSQLLexer = class
   private
     FInput: string;
@@ -41,16 +36,13 @@ type
     property LinePos: Integer read GetLinePos;
     property Token: TCharType read GetToken;
   end;
-
 implementation
-
 constructor TSQLLexer.Create(const AInput: string);
 begin
   FInput := AInput;
   FPosition := 1;
   FLine := 1;
 end;
-
 constructor TSQLLexer.Create(AStream: TStream);
 var
   StringStream: TStringStream;
@@ -65,7 +57,6 @@ begin
     StringStream.Free;
   end;
 end;
-
 function TSQLLexer.GetNextChar: Char;
 begin
   if FPosition > Length(FInput) then
@@ -76,7 +67,6 @@ begin
   if Result = #10 then
     Inc(FLine);
 end;
-
 function TSQLLexer.PeekNextChar: Char;
 begin
   if (FPosition) > Length(FInput) then
@@ -84,12 +74,10 @@ begin
   else
     Result := FInput[FPosition];
 end;
-
 function TSQLLexer.IsEOF: Boolean;
 begin
   Result := FPosition > Length(FInput);
 end;
-
 function TSQLLexer.ReadWhile(const Predicate: TFunc<Char, Boolean>): string;
 var
   Ch: Char;
@@ -108,7 +96,6 @@ begin
     Result := Result + Ch;
   end;
 end;
-
 function TSQLLexer.ReadRest: string;
 var
   Ch: Char;
@@ -120,7 +107,6 @@ begin
     Result := Result + Ch;
   end;
 end;
-
 function TSQLLexer.GetNextToken: TToken;
 var
   Ch: Char;
@@ -128,7 +114,6 @@ begin
   while not IsEOF do
   begin
     Ch := GetNextChar;
-
     case Ch of
       ' ', #9, #10, #13:
         begin
@@ -142,7 +127,6 @@ begin
             begin
               Result := CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9', '_']);
             end);
-
         end;
       '0'..'9':
         begin
@@ -156,12 +140,19 @@ begin
             Dec(FPosition, 2);
             FCurrentToken.Value := FCurrentToken.Value.Substring(0, FCurrentToken.Value.Length - 2);
           end;
-
         end;
       '.', ',', ';':
         begin
           FCurrentToken.TokenType := ttOperator;
           FCurrentToken.Value := Ch;
+        end;
+      '`':
+        begin
+          FCurrentToken.TokenType := ttString;
+          FCurrentToken.Value := Ch + ReadWhile(function(C: Char): Boolean
+            begin
+              Result := C <> Ch;
+            end) + GetNextChar;
         end;
       '''', '"':
         begin
@@ -220,44 +211,36 @@ begin
           FCurrentToken.Value := Ch;
         end;
     end;
-
     FCurrentToken.Position := FPosition - Length(FCurrentToken.Value);
     FCurrentToken.Line := FLine;
     Result := FCurrentToken;
     Exit;
   end;
-
   FCurrentToken.TokenType := ttEOF;
   FCurrentToken.Value := '';
   FCurrentToken.Position := FPosition;
   FCurrentToken.Line := FLine;
   Result := FCurrentToken;
 end;
-
 function TSQLLexer.GetSourcePos: Integer;
 begin
   Result := FCurrentToken.Position;
 end;
-
 function TSQLLexer.GetTokenString: string;
 begin
   Result := FCurrentToken.Value;
 end;
-
 function TSQLLexer.GetLinePos: Integer;
 begin
   Result := FCurrentToken.Line;
 end;
-
 function TSQLLexer.GetToken: TCharType;
 var
   Ch: Char;
 begin
   if IsEOF then
     Exit(ctOther);
-
   Ch := FCurrentToken.Value[1];
-
   case Ch of
     'A'..'Z', 'a'..'z', '_':
       Result := ctLetterStart;
@@ -285,6 +268,5 @@ begin
       Result := ctOther;
   end;
 end;
-
 end.
 
