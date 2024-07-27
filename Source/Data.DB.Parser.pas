@@ -75,13 +75,12 @@ type
   TSQLParser = class
   private
     FTokenDict: TDictionary<string, TTokenTypes>;
-
+    FTokens: TTokenBucket;
     procedure InitializeTokenDict;
     procedure CombineTokens;
     procedure DropIndex(i: Integer);
     procedure ScanForDateCombination;
   public
-    FTokens: TTokenBucket;
     function TokenStringToTokenSQL(info: TTokenInfo): TTokenTypes;
     function TokenIdToTokenString(inTokenId: TTokenTypes): string;
     function ProcessSQL(SQL: string): Integer;
@@ -93,6 +92,7 @@ type
     function TokenCount: Integer;
     constructor Create;
     destructor Destroy; override;
+    property Tokens: TTokenBucket read FTokens;
   end;
 
 implementation
@@ -774,6 +774,18 @@ begin
         if (FTokens[i - 1].TokenSQL = tkSum) and
            (FTokens[i - 2].TokenSQL = TTokenTypes.tkLeftBracket) then
           FTokens[i].TokenSQL := tkSum;
+      end;
+
+      if i - 2 >= 0 then
+      begin
+        if (FTokens[i - 2].TokenSQL = tkComma) and
+           (FTokens[i].TokenSQL = tkFrom) and
+           (FTokens[i - 1].TokenSQL = tkUnknownToken) then
+          FTokens[i - 1].TokenSQL := tkFieldName
+        else if (FTokens[i - 2].TokenSQL = tkAs) and
+           (FTokens[i].TokenSQL = tkFrom) and
+           (FTokens[i - 1].TokenSQL = tkUnknownToken) then
+          FTokens[i - 1].TokenSQL := tkFieldName
       end;
 
       if i - 2 >= 0 then

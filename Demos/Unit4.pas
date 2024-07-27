@@ -91,12 +91,11 @@ type
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
-    procedure Memo1Change(Sender: TObject);
     procedure tblTestSQLStatementsAfterScroll(DataSet: TDataSet);
     procedure tblTestSQLStatementTokensCalcFields(DataSet: TDataSet);
   private
     { Private declarations }
-    value : TSQLParser;
+    SqlTokens : TSQLParser;
   public
     { Public declarations }
     function ProcessSQL(const SQL: string): Integer;
@@ -130,7 +129,7 @@ procedure TForm4.FormCreate(Sender: TObject);
 var
   filename : string;
 begin
-  value := TSQLParser.Create;
+  SqlTokens := TSQLParser.Create;
   filename := ExtractFilePath(ParamStr(0));
   filename := TPath.Combine(filename, '..\..\..\Source\SQLParserDB.mdb');
   AccessConnection.Params.Database := filename;
@@ -165,9 +164,9 @@ begin
     begin
       undecodedCount := 0;
       ProcessSQL(statements[i]);
-      for j := 0 to value.FTokens.Count - 1 do
+      for j := 0 to SqlTokens.Tokens.Count - 1 do
       begin
-        if value.FTokens[j].TokenSQL = tkUnknownToken then
+        if SqlTokens.Tokens[j].TokenSQL = tkUnknownToken then
           Inc(undecodedCount);
       end;
       Memo2.Lines.Add('Missed Decoding :' + undecodedCount.ToString);
@@ -187,46 +186,20 @@ var
 begin
    tblTestSQLStatementsAfterScroll(tblTestSQLStatements);
   repeat
-    Assert(value.FTokens.Count  = tblTestSQLStatementTokens.RecordCount);
-    for i := 0 to value.FTokens.Count - 1 do
+    Assert(SqlTokens.Tokens.Count  = tblTestSQLStatementTokens.RecordCount);
+    for i := 0 to SqlTokens.Tokens.Count - 1 do
     begin
       OutputDebugString(PChar('i = ' + i.ToString));
       if tblTestSQLStatementTokens.Locate('PositionNo', i, []) then
       begin
-        Assert(value.FTokens[i].Token = tblTestSQLStatementTokensTokenText.AsString);
-        Assert(value.FTokens[i].TokenSQL = tblTestSQLStatementTokensTokenID.AsTokenType);
+        Assert(SqlTokens.Tokens[i].Token = tblTestSQLStatementTokensTokenText.AsString);
+        Assert(SqlTokens.Tokens[i].TokenSQL = tblTestSQLStatementTokensTokenID.AsTokenType);
       end;
     end;
 
     tblTestSQLStatements.Next;
   until tblTestSQLStatements.Eof;
 end;
-
-procedure TForm4.Memo1Change(Sender: TObject);
-begin
-//  OutputDebugString(PChar('SelStart:' + Memo1.SelStart.ToString));
-end;
-
-
-function TokenizeSQL(const SQL: string): TArray<string>;
-var
-  Tokens: TArray<string>;
-  Matches: TMatchCollection;
-  Match: TMatch;
-  RegEx: TRegEx;
-  i : Integer;
-begin
-  RegEx := TRegEx.Create('\b\w+\b|[^\w\s]+', [roMultiLine]);
-  Matches := RegEx.Matches(SQL);
-  SetLength(Tokens, Matches.Count);
-  for i := 0 to Matches.Count - 1 do
-  begin
-    Match := Matches.Item[i];
-    Tokens[i] := Match.Value;
-  end;
-  Result := Tokens;
-end;
-
 
 procedure TForm4.Button4Click(Sender: TObject);
 var
@@ -235,7 +208,7 @@ begin
   for i := 0 to 170 do
   begin
     try
-      Memo1.Lines.Add(value.TokenIdToTokenString(TTokenTypes(i)) + ' = ' + i.ToString);
+      Memo1.Lines.Add(SqlTokens.TokenIdToTokenString(TTokenTypes(i)) + ' = ' + i.ToString);
     except
 
     end;
@@ -256,25 +229,20 @@ var
   v : TArray<string>;
 begin
   try
-    Result := value.ProcessSQL(SQL);
+    Result := SqlTokens.ProcessSQL(SQL);
   except
 
   end;
   Memo2.LockDrawing;
   try
-  for i := 0 to value.FTokens.Count - 1 do
+  for i := 0 to SqlTokens.Tokens.Count - 1 do
   begin
-    if value.FTokens[i].TokenSQL = tkUnknownToken then
-      Memo2.Lines.Add(i.ToString + '   ============= ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.ToString)
+    if SqlTokens.Tokens[i].TokenSQL = tkUnknownToken then
+      Memo2.Lines.Add(i.ToString + '   ============= ' + SqlTokens.Tokens[i].token + ' ' + SqlTokens.Tokens[i].TokenSQL.ToString)
     else
-    Memo2.Lines.Add(i.ToString +  '   ' + value.FTokens[i].token + ' ' + value.FTokens[i].TokenSQL.AsInteger.ToString);
+    Memo2.Lines.Add(i.ToString +  '   ' + SqlTokens.Tokens[i].token + ' ' + SqlTokens.Tokens[i].TokenSQL.AsInteger.ToString);
   end;
     Memo2.Lines.Add('///////////////////////////');
-  v := TokenizeSQL(SQL);
-  for i := 0 to length(v) - 1 do
-  begin
-    Memo2.Lines.Add(v[i]);
-  end;
   finally
     Memo2.UnlockDrawing;
   end;
@@ -287,8 +255,8 @@ var
   j : Integer;
   errPos : Integer;
 begin
-  if not Assigned(value) then
-      value := TSQLParser.Create;
+  if not Assigned(SqlTokens) then
+      SqlTokens := TSQLParser.Create;
   Memo1.Clear;
   Memo2.Clear;
   Memo1.Lines.Text := DataSet.FieldByName('Statements').AsString;
@@ -300,22 +268,22 @@ begin
     Memo1.SelLength := 100;
   end;
 
-  for j := 0 to value.FTokens.Count - 1 do
+  for j := 0 to SqlTokens.Tokens.Count - 1 do
   begin
-    if value.FTokens[j].TokenSQL = tkUnknownToken then
+    if SqlTokens.Tokens[j].TokenSQL = tkUnknownToken then
       Inc(undecodedCount);
   end;
   if tblTestSQLStatementTokens.RecordCount = 0 then
   begin
-    for j := 0 to value.FTokens.Count - 1 do
+    for j := 0 to SqlTokens.Tokens.Count - 1 do
     begin
       tblTestSQLStatementTokens.Append;
       tblTestSQLStatementTokens.FieldByName('StatementID').AsInteger := tblTestSQLStatementsID.AsInteger;
       tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger := j;
-      if j < value.FTokens.Count then
+      if j < SqlTokens.Tokens.Count then
       begin
-        tblTestSQLStatementTokens.FieldByName('TokenText').AsString := value.FTokens[j].Token;
-        tblTestSQLStatementTokens.FieldByName('TokenID').AsTokenType := value.FTokens[j].TokenSQL;
+        tblTestSQLStatementTokens.FieldByName('TokenText').AsString := SqlTokens.Tokens[j].Token;
+        tblTestSQLStatementTokens.FieldByName('TokenID').AsTokenType := SqlTokens.Tokens[j].TokenSQL;
       end;
       tblTestSQLStatementTokens.Post;
     end;
@@ -330,11 +298,11 @@ begin
     tblResultsTokens.FieldByName('PositionNo').AsInteger := tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger;
     tblResultsTokens.FieldByName('TokenText').AsString := tblTestSQLStatementTokens.FieldByName('TokenText').AsString;
     tblResultsTokens.FieldByName('TokenID').AsInteger := tblTestSQLStatementTokens.FieldByName('TokenID').AsInteger;
-    tblResultsTokens.FieldByName('TokenTypeName').AsString := value.TokenIdToTokenString(tblResultsTokens.FieldByName('TokenID').AsTTokenType);
-    tblResultsTokens.FieldByName('TokenCurrentlyDecodedAs').AsString := value.TokenIdToTokenString(value.FTokens.LookupTokenByPosition(tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger).TokenSQL);
-    tblResultsTokens.FieldByName('TokenCurrentString').AsString := value.FTokens.LookupTokenByPosition(tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger).Token;
+    tblResultsTokens.FieldByName('TokenTypeName').AsString := SqlTokens.TokenIdToTokenString(tblResultsTokens.FieldByName('TokenID').AsTTokenType);
+    tblResultsTokens.FieldByName('TokenCurrentlyDecodedAs').AsString := SqlTokens.TokenIdToTokenString(SqlTokens.Tokens.LookupTokenByPosition(tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger).TokenSQL);
+    tblResultsTokens.FieldByName('TokenCurrentString').AsString := SqlTokens.Tokens.LookupTokenByPosition(tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger).Token;
 
-    if tblResultsTokens.FieldByName('TokenID').AsInteger = Ord(value.FTokens.LookupTokenByPosition(tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger).TokenSQL) then
+    if tblResultsTokens.FieldByName('TokenID').AsInteger = Ord(SqlTokens.Tokens.LookupTokenByPosition(tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger).TokenSQL) then
     begin
       tblResultsTokens.FieldByName('TokenMatch').AsString := 'Match';
     end
@@ -349,24 +317,24 @@ begin
 
 
 
-  if value.DoesStatementModifyDB then
+  if SqlTokens.DoesStatementModifyDB then
   begin
     Memo2.Lines.Add('Statement Modifies Database');
   end;
-  if value.DoesCommentExist then
+  if SqlTokens.DoesCommentExist then
   begin
     Memo2.Lines.Add('Statement Contains COMMENT!');
   end;
-  if value.DoesDoubleConstantExpressionExist then
+  if SqlTokens.DoesDoubleConstantExpressionExist then
   begin
     Memo2.Lines.Add('Double Constant Expression EXISTS!!!!!!!!!!!!!!');
   end;
-  if value.StatementCount > 1 then
+  if SqlTokens.StatementCount > 1 then
   begin
     Memo2.Lines.Add('MULTIPLE STATEMENTS EXISTS!!!!!!!!!!!!!!');
   end;
 
-  if value.IsDDL then
+  if SqlTokens.IsDDL then
   begin
     Memo2.Lines.Add('Statement is DDL');
   end;
@@ -379,17 +347,17 @@ var
   TokenCount : Integer;
   PositionNo : Integer;
 begin
-  DataSet.FieldByName('TokenTypeName').AsString := value.TokenIdToTokenString(DataSet.FieldByName('TokenID').AsTTokenType);
+  DataSet.FieldByName('TokenTypeName').AsString := SqlTokens.TokenIdToTokenString(DataSet.FieldByName('TokenID').AsTTokenType);
   PositionNo := 0;
 
-  if DataSet.Active and (value.TokenCount > 0) and
-    (value.TokenCount > tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger) then
+  if DataSet.Active and (SqlTokens.TokenCount > 0) and
+    (SqlTokens.TokenCount > tblTestSQLStatementTokens.FieldByName('PositionNo').AsInteger) then
   begin
-    TokenCount := value.TokenCount;
+    TokenCount := SqlTokens.TokenCount;
     PositionNo := DataSet.FieldByName('PositionNo').AsInteger;
     if PositionNo > 300 then
       Exit;
-    TokenID := value.FTokens.Items[PositionNo].TokenSQL;
+    TokenID := SqlTokens.Tokens.Items[PositionNo].TokenSQL;
 //    value.FTokens.T
     if TokenID = DataSet.FieldByName('TokenID').AsTokenType then
       DataSet.FieldByName('TokenMatch').AsString := 'Matches'
