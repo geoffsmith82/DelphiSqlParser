@@ -353,6 +353,10 @@ begin
   begin
     Memo2.Lines.Add('Statement Modifies Database');
   end;
+  if value.DoesCommentExist then
+  begin
+    Memo2.Lines.Add('Statement Contains COMMENT!');
+  end;
   if value.DoesDoubleConstantExpressionExist then
   begin
     Memo2.Lines.Add('Double Constant Expression EXISTS!!!!!!!!!!!!!!');
