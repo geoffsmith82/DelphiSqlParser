@@ -45,7 +45,8 @@ type
     tkOpenTables, tkShowTriggers, tkShowStatus, tkShowCharSet, tkShowEngineInnoDBMutex,
     tkShowFullProcessList, tkShowFullTables, tkShowPlugins, tkShowProcedureStatus,
     tkShowProcessList, tkShowProfile, tkShowProfiles, tkShowSchemas,
-    tkShowStorageEngines, tkShowTableStatus, tkShowTables, tkShowEngineInnoDBStatus
+    tkShowStorageEngines, tkShowTableStatus, tkShowTables, tkShowEngineInnoDBStatus,
+    tkShowWarnings, tkDateConstant
     );
 
   TTokenInfo = class
@@ -78,6 +79,7 @@ type
     procedure InitializeTokenDict;
     procedure CombineTokens;
     procedure DropIndex(i: Integer);
+    procedure ScanForDateCombination;
   public
     FTokens: TTokenBucket;
     function TokenStringToTokenSQL(info: TTokenInfo): TTokenTypes;
@@ -86,6 +88,7 @@ type
     function DoesStatementModifyDB: Boolean;
     function IsDDL: Boolean;
     function DoesDoubleConstantExpressionExist: Boolean;
+    function DoesCommentExist: Boolean;
     function StatementCount: Integer;
     function TokenCount: Integer;
     constructor Create;
@@ -362,6 +365,20 @@ begin
   Result := FTokens.Count;
 end;
 
+function TSQLParser.DoesCommentExist: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to FTokens.Count - 1 do
+  begin
+      if (FTokens[i].TokenSQL in [TTokenTypes.tkComment]) then
+      begin
+        Result := True;
+      end;
+  end;
+end;
+
 function TSQLParser.DoesDoubleConstantExpressionExist: Boolean;
 var
   i: Integer;
@@ -389,36 +406,36 @@ begin
   for i := 0 to FTokens.Count - 1 do
   begin
     if FTokens[i].TokenSQL in [
-                               TTokenTypes.tkJoin,
-                               TTokenTypes.tkInto,
-                               TTokenTypes.tkInsert,
-                               TTokenTypes.tkUpdate,
-                               TTokenTypes.tkSet,
-                               TTokenTypes.tkAlter,
-                               TTokenTypes.tkCreate,
-                               TTokenTypes.tkDelete,
-                               TTokenTypes.tkDrop,
-                               TTokenTypes.tkAdd,
-                               TTokenTypes.tkGrant,
-                               TTokenTypes.tkView,
-                               TTokenTypes.tkCreateDatabase,
-                               TTokenTypes.tkCreateView,
-                               TTokenTypes.tkCreateUser,
-                               TTokenTypes.tkCreateTable,
-                               TTokenTypes.tkCreateIndex,
-                               TTokenTypes.tkCreateUniqueIndex,
-                               TTokenTypes.tkCreateOrReplaceView,
-                               TTokenTypes.tkDropDatabase,
-                               TTokenTypes.tkDropView,
-                               TTokenTypes.tkDropTable,
-                               TTokenTypes.tkDropUser,
-                               TTokenTypes.tkTruncateTable,
-                               TTokenTypes.tkAlterTable,
-                               TTokenTypes.tkDropIndex,
-                               TTokenTypes.tkDeleteFrom,
-                               TTokenTypes.tkInsertInto,
-                               TTokenTypes.tkDropConstraint,
-                               TTokenTypes.tkAlterColumn
+                               tkJoin,
+                               tkInto,
+                               tkInsert,
+                               tkUpdate,
+                               tkSet,
+                               tkAlter,
+                               tkCreate,
+                               tkDelete,
+                               tkDrop,
+                               tkAdd,
+                               tkGrant,
+                               tkView,
+                               tkCreateDatabase,
+                               tkCreateView,
+                               tkCreateUser,
+                               tkCreateTable,
+                               tkCreateIndex,
+                               tkCreateUniqueIndex,
+                               tkCreateOrReplaceView,
+                               tkDropDatabase,
+                               tkDropView,
+                               tkDropTable,
+                               tkDropUser,
+                               tkTruncateTable,
+                               tkAlterTable,
+                               tkDropIndex,
+                               tkDeleteFrom,
+                               tkInsertInto,
+                               tkDropConstraint,
+                               tkAlterColumn
                                ] then
     begin
       Result := True;
@@ -591,6 +608,7 @@ begin
   AddTokenCombination(['SHOW', 'TABLE', 'STATUS'], tkShowTableStatus);
   AddTokenCombination(['SHOW', 'TABLES'], tkShowTables);
   AddTokenCombination(['SHOW', 'TRIGGERS'], tkShowTriggers);
+  AddTokenCombination(['SHOW', 'WARNINGS'], tkShowWarnings);
   AddTokenCombination(['TO', 'DISK'], tkToDisk);
   AddTokenCombination(['TRUNCATE', 'TABLE'], tkTruncateTable);
   AddTokenCombination(['UNION', 'ALL'], tkUnionAll);
@@ -601,6 +619,35 @@ begin
     for var TokenMatch in TokenCombinations do
       CombineIfMatch(TokenMatch);
     Inc(i);
+  end;
+
+  ScanForDateCombination;
+end;
+
+procedure TSQLParser.ScanForDateCombination;
+var
+  i: Integer;
+begin
+  i := 0;
+  while i <= FTokens.Count - 7 do
+  begin
+    if (FTokens[i].TokenSQL = tkHash) and
+       (FTokens[i + 1].TokenSQL = tkConstantNumber) and
+       (FTokens[i + 2].TokenSQL = tkDivide) and
+       (FTokens[i + 3].TokenSQL = tkConstantNumber) and
+       (FTokens[i + 4].TokenSQL = tkDivide) and
+       (FTokens[i + 5].TokenSQL = tkConstantNumber) and
+       (FTokens[i + 6].TokenSQL = tkHash) then
+    begin
+      // Join the tokens
+      for var j := 1 to 6 do
+        FTokens.Join(i);
+      FTokens[i].TokenSQL := tkDateConstant; // Example: You can set to any relevant type if needed
+      FTokens[i].Token := FTokens[i].Token.Replace(' ', '');
+      FTokens[i].Token := FTokens[i].Token.Replace('#', '');
+    end
+    else
+      Inc(i);
   end;
 end;
 
