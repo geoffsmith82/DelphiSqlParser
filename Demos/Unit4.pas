@@ -329,6 +329,10 @@ begin
   begin
     Memo2.Lines.Add('Double Constant Expression EXISTS!!!!!!!!!!!!!!');
   end;
+  if SqlTokens.DoesSelectConstantExist then
+  begin
+    Memo2.Lines.Add('Select Constant Expression EXISTS!!!!!!!!!!!!!!');
+  end;
   if SqlTokens.StatementCount > 1 then
   begin
     Memo2.Lines.Add('MULTIPLE STATEMENTS EXISTS!!!!!!!!!!!!!!');

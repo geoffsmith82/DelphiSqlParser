@@ -32,7 +32,6 @@ object Form4: TForm4
         'able1.f1 = table2.f2 WHERE (table1.id = '
       '12);')
     TabOrder = 0
-    OnChange = Memo1Change
   end
   object Memo2: TMemo
     Left = 6

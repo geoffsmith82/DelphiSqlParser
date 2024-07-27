@@ -87,6 +87,7 @@ type
     function DoesStatementModifyDB: Boolean;
     function IsDDL: Boolean;
     function DoesDoubleConstantExpressionExist: Boolean;
+    function DoesSelectConstantExist: Boolean;
     function DoesCommentExist: Boolean;
     function StatementCount: Integer;
     function TokenCount: Integer;
@@ -391,6 +392,25 @@ begin
       if (FTokens[i - 2].TokenSQL in [TTokenTypes.tkConstantNumber, TTokenTypes.tkConstantString]) and
          (FTokens[i - 1].TokenSQL in [TTokenTypes.tkEquals, TTokenTypes.tkLessThan, TTokenTypes.tkLessThanOrEqual, TTokenTypes.tkNotEqual, TTokenTypes.tkGreaterThan, TTokenTypes.tkGreaterThanOrEqual]) and
          (FTokens[i].TokenSQL in [TTokenTypes.tkConstantNumber, TTokenTypes.tkConstantString]) then
+      begin
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
+function TSQLParser.DoesSelectConstantExist: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+  for i := 0 to FTokens.Count - 1 do
+  begin
+    if i - 2 >= 0 then
+    begin
+      if ((FTokens[i - 2].TokenSQL = TTokenTypes.tkSelect) and
+         (FTokens[i - 1].TokenSQL in [tkConstantNumber, tkConstantString]) and
+         (FTokens[i].TokenSQL in [tkRightBracket, tkEndStatement])) then
       begin
         Result := True;
       end;
